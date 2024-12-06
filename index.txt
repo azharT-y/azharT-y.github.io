@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>West Bank Hospitals Map</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async defer></script>
+  <style>
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Hospitals and Medical Centers in the West Bank</h1>
+  <div id="map"></div>
+  <script>
+    const hospitals = [
+      { name: "Ramallah Hospital", lat: 31.9038, lng: 35.2034 },
+      { name: "Al-Istishari Hospital", lat: 31.8991, lng: 35.1993 },
+      { name: "Bethlehem Arab Society for Rehabilitation", lat: 31.7131, lng: 35.1847 },
+      { name: "Hebron Governmental Hospital", lat: 31.5309, lng: 35.1045 },
+      { name: "Nablus Rafidia Surgical Hospital", lat: 32.2244, lng: 35.2635 },
+      { name: "Jenin Government Hospital", lat: 32.4593, lng: 35.2967 },
+      { name: "Jericho Governmental Hospital", lat: 31.8566, lng: 35.4442 },
+      { name: "Salfit Medical Center", lat: 32.0840, lng: 35.1816 },
+      { name: "Qalqilya Governmental Hospital", lat: 32.1956, lng: 35.0193 },
+      { name: "Tulkarm Governmental Hospital", lat: 32.3111, lng: 35.0219 }
+    ];
+
+    function initMap() {
+      const westBankCenter = { lat: 31.9454, lng: 35.2381 };
+
+      const map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 9,
+        center: westBankCenter,
+      });
+
+      hospitals.forEach(hospital => {
+        const marker = new google.maps.Marker({
+          position: { lat: hospital.lat, lng: hospital.lng },
+          map: map,
+          title: hospital.name,
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: `<h3>${hospital.name}</h3>`,
+        });
+
+        marker.addListener("click", () => {
+          infoWindow.open(map, marker);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
