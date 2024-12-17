@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خريطة المستشفيات ومناطق رام الله</title>
+    <!-- مكتبة Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; }
+        #map { height: 100vh; width: 100%; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script>
+        // إنشاء الخريطة وتحديد الإحداثيات الأولية
+        var map = L.map('map').setView([31.9, 35.2], 12); // رام الله
+
+        // إضافة خريطة OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // بيانات المستشفيات والمراكز الطبية (GeoJSON)
+        var healthFacilities = {
+            "type": "FeatureCollection",
+            "features": [
+                { "type": "Feature", "properties": { "name": "المركز الطبي التخصصي" }, "geometry": { "type": "Point", "coordinates": [35.197, 31.903] }},
+                { "type": "Feature", "properties": { "name": "مركز كلينكير الطبي" }, "geometry": { "type": "Point", "coordinates": [35.205, 31.902] }},
+                { "type": "Feature", "properties": { "name": "مجمع فلسطين الطبي" }, "geometry": { "type": "Point", "coordinates": [35.210, 31.905] }},
+                { "type": "Feature", "properties": { "name": "مستشفى رام الله" }, "geometry": { "type": "Point", "coordinates": [35.200, 31.904] }},
+                { "type": "Feature", "properties": { "name": "الهلال الأحمر الفلسطيني" }, "geometry": { "type": "Point", "coordinates": [35.208, 31.907] }}
+            ]
+        };
+
+        // بيانات مناطق رام الله (مثال على Polygon)
+        var ramallahZones = {
+            "type": "FeatureCollection",
+            "features": [
+                { 
+                    "type": "Feature", 
+                    "properties": { "zone": "منطقة رام الله المركزية" },
+                    "geometry": { 
+                        "type": "Polygon",
+                        "coordinates": [[[35.195, 31.900], [35.215, 31.900], [35.215, 31.920], [35.195, 31.920], [35.195, 31.900]]]
+                    }
+                }
+            ]
+        };
+
+        // إضافة مناطق رام الله إلى الخريطة
+        L.geoJSON(ramallahZones, {
+            style: {
+                color: "blue",
+                weight: 2,
+                fillColor: "lightblue",
+                fillOpacity: 0.4
+            },
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup(`<b>المنطقة: ${feature.properties.zone}</b>`);
+            }
+        }).addTo(map);
+
+        // إضافة بيانات المستشفيات إلى الخريطة
+        L.geoJSON(healthFacilities, {
+            pointToLayer: function (feature, latlng) {
+                return L.marker(latlng);
+            },
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup(`<b>اسم المستشفى: ${feature.properties.name}</b>`);
+            }
+        }).addTo(map);
+    </script>
+</body>
+</html>
