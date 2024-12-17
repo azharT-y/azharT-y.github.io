@@ -2,20 +2,85 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>اختبار Leaflet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خريطة المستشفيات ومناطق رام الله</title>
+    <!-- مكتبة Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <!-- مكتبة Leaflet Search -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-search/2.9.8/leaflet-search.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-search/2.9.8/leaflet-search.min.js"></script>
     <style>
+        body, html { margin: 0; padding: 0; height: 100%; }
         #map { height: 100vh; width: 100%; }
+        .legend { background: white; padding: 10px; line-height: 1.5em; border-radius: 5px; }
+        .legend i { width: 20px; height: 20px; float: right; margin-left: 8px; opacity: 0.7; }
     </style>
 </head>
 <body>
     <div id="map"></div>
+
     <script>
         var map = L.map('map').setView([31.9, 35.2], 12);
+
+        // خريطة OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
+
+        // رموز مخصصة للمستشفيات
+        var hospitalIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/3456/3456552.png',
+            iconSize: [25, 25],
+            iconAnchor: [12, 24],
+            popupAnchor: [0, -20]
+        });
+
+        // بيانات المستشفيات
+        var hospitals = [
+            { "name": "مجمع فلسطين الطبي", "coords": [35.2048, 31.8988] },
+            { "name": "مستشفى الرعاية التخصصي", "coords": [35.2050, 31.9053] },
+            { "name": "مستشفى د. ضرغام", "coords": [35.2044, 31.8977] }
+        ];
+
+        // إضافة المستشفيات مع الأيقونات المخصصة
+        var hospitalLayer = L.layerGroup();
+        hospitals.forEach(function(hospital) {
+            var marker = L.marker(hospital.coords, { icon: hospitalIcon })
+                .bindPopup(`<b>${hospital.name}</b>`);
+            marker.addTo(hospitalLayer);
+        });
+        hospitalLayer.addTo(map);
+
+        // طبقة أسماء الشوارع
+        var streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap France'
+        });
+        streetLayer.addTo(map);
+
+        // أداة البحث
+        var searchControl = new L.Control.Search({
+            layer: hospitalLayer,
+            propertyName: 'name',
+            marker: false,
+            moveToLocation: function(latlng, title, map) {
+                map.setView(latlng, 15);
+            }
+        });
+        map.addControl(searchControl);
+
+        // إضافة "ليجند" (مفتاح الخريطة)
+        var legend = L.control({ position: 'bottomleft' });
+        legend.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML += '<i style="background: url(https://cdn-icons-png.flaticon.com/512/3456/3456552.png) no-repeat center; background-size: cover;"></i> مستشفى<br>';
+            div.innerHTML += '<i style="background: blue;"></i> منطقة رام الله';
+            return div;
+        };
+        legend.addTo(map);
+
+        // أداة التكبير والتصغير الافتراضية (Leaflet)
+        L.control.zoom({ position: 'topleft' }).addTo(map);
     </script>
 </body>
 </html>
