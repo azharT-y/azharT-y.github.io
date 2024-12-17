@@ -24,29 +24,37 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
+        // أيقونات مخصصة
+        var hospitalIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/3456/3456552.png',
+            iconSize: [30, 30],
+            iconAnchor: [15, 30],
+            popupAnchor: [0, -30]
+        });
+
         // بيانات المستشفيات والمراكز الطبية
         var facilities = [
             { "name": "مجمع فلسطين الطبي", "coords": [31.8988, 35.2048] },
             { "name": "مستشفى الرعاية التخصصي", "coords": [31.9053, 35.2050] },
-            { "name": "مركز الطوارئ بيتونيا", "coords": [31.8995, 35.1920] },
-            { "name": "مركز كلينكير الطبي", "coords": [31.9040, 35.2001] },
-            { "name": "مستشفى خالد الحرامي", "coords": [31.9005, 35.2033] },
-            { "name": "مستشفى المستقبل", "coords": [31.9060, 35.2090] },
-            { "name": "مستشفى أبويا", "coords": [31.9015, 35.2075] },
-            { "name": "مركز الأمل الطبي", "coords": [31.9020, 35.2025] },
-            { "name": "مركز هيلث هاوس", "coords": [31.9032, 35.1985] },
             { "name": "مستشفى الهلال الأحمر", "coords": [31.9080, 35.2085] },
-            { "name": "المستشفى الاستشاري", "coords": [31.9100, 35.2150] },
-            { "name": "مستشفى د. ضرغام", "coords": [31.8950, 35.2101] },
+            { "name": "مركز الأمل الطبي", "coords": [31.9020, 35.2025] },
+            { "name": "مستشفى المستقبل", "coords": [31.9060, 35.2090] },
+            { "name": "مستشفى خالد الحرامي", "coords": [31.9005, 35.2033] },
+            { "name": "مستشفى أبويا", "coords": [31.9015, 35.2075] },
+            { "name": "مركز الطوارئ", "coords": [31.8993, 35.2028] },
             { "name": "مركز الراجحي الطبي", "coords": [31.9075, 35.2130] },
-            { "name": "مستشفى الطوارئ", "coords": [31.8993, 35.2028] },
+            { "name": "مستشفى القدس", "coords": [31.9050, 35.2020] },
             { "name": "مستشفى الحياة", "coords": [31.9025, 35.2055] },
-            { "name": "مستشفى القدس", "coords": [31.9050, 35.2020] }
+            { "name": "مستشفى الطوارئ بيتونيا", "coords": [31.8995, 35.1920] },
+            { "name": "مستشفى د. ضرغام", "coords": [31.8950, 35.2101] },
+            { "name": "مركز هيلث هاوس", "coords": [31.9032, 35.1985] },
+            { "name": "مستشفى الاستشاري", "coords": [31.9100, 35.2150] },
+            { "name": "مركز كلينكير الطبي", "coords": [31.9040, 35.2001] }
         ];
 
         // إضافة المستشفيات إلى الخريطة
         facilities.forEach(function(facility) {
-            L.marker(facility.coords)
+            L.marker(facility.coords, { icon: hospitalIcon })
              .bindPopup(`<b>${facility.name}</b>`)
              .addTo(map);
         });
@@ -68,16 +76,14 @@
             }
         };
 
-        // إضافة المضلع إلى الخريطة
+        // إضافة مضلع محافظة رام الله
         L.geoJSON(ramallahPolygon, {
-            style: {
-                color: "blue",
-                fillColor: "cyan",
-                weight: 2,
-                fillOpacity: 0.4
-            }
+            style: { color: "blue", weight: 2, fillColor: "cyan", fillOpacity: 0.4 }
         }).bindPopup("<b>محافظة رام الله</b>").addTo(map);
     </script>
 </body>
 </html>
+python -m http.server 8000
+http://localhost:8000
+
 
