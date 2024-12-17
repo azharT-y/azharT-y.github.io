@@ -7,6 +7,9 @@
     <!-- مكتبة Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <!-- مكتبة Leaflet Search -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-search/2.9.8/leaflet-search.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-search/2.9.8/leaflet-search.min.js"></script>
     <style>
         body, html { margin: 0; padding: 0; height: 100%; }
         #map { height: 100vh; width: 100%; }
@@ -47,12 +50,14 @@
             { "name": "مركز الطوارئ الطبي", "coords": [35.2020, 31.9010], "type": "emergency" }
         ];
 
+        var hospitalLayer = L.layerGroup();
         hospitals.forEach(function(hospital) {
             var icon = hospital.type === "hospital" ? hospitalIcon : emergencyIcon;
             L.marker(hospital.coords, { icon: icon })
-             .addTo(map)
-             .bindPopup(`<b>${hospital.name}</b>`);
+             .bindPopup(`<b>${hospital.name}</b>`)
+             .addTo(hospitalLayer);
         });
+        hospitalLayer.addTo(map);
 
         // مضلع محافظة رام الله
         var ramallahPolygon = {
@@ -81,9 +86,20 @@
             }
         }).bindPopup("<b>محافظة رام الله</b>").addTo(map);
 
-        // مفتاح الخريطة (ليجند)
+        // أداة البحث
+        var searchControl = new L.Control.Search({
+            layer: hospitalLayer,
+            propertyName: 'name',
+            marker: false,
+            moveToLocation: function(latlng, title, map) {
+                map.setView(latlng, 15);
+            }
+        });
+        map.addControl(searchControl);
+
+        // مفتاح الخريطة (Legend)
         var legend = L.control({ position: 'bottomleft' });
-        legend.onAdd = function (map) {
+        legend.onAdd = function () {
             var div = L.DomUtil.create('div', 'legend');
             div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/3456/3456552.png);"></i> مستشفى<br>';
             div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/1048/1048354.png);"></i> مركز طوارئ<br>';
