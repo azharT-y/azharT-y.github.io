@@ -6,6 +6,8 @@
     <title>خريطة محافظة رام الله والمستشفيات</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-search@3.0.0/dist/leaflet-search.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-search@3.0.0/dist/leaflet-search.min.css" />
     <style>
         body, html { margin: 0; padding: 0; height: 100%; }
         #map { width: 100%; height: 100vh; }
@@ -31,7 +33,7 @@
     <script>
         var map = L.map('map').setView([31.9, 35.2], 12);
 
-        // إضافة طبقة OpenStreetMap
+        // طبقة OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
@@ -53,20 +55,33 @@
                         fillColor: "cyan",
                         fillOpacity: 0.3
                     }
-                }).bindPopup("محافظة رام الله").addTo(map);
+                }).addTo(map);
             });
 
-        // عرض المستشفيات فوق المضلع
+        // عرض المستشفيات مع إضافة أداة البحث
+        var hospitalsLayer = L.layerGroup();
         fetch('Hospitals.geojson')
             .then(response => response.json())
             .then(data => {
-                L.geoJSON(data, {
+                var hospitals = L.geoJSON(data, {
                     pointToLayer: function (feature, latlng) {
-                        var name = feature.properties.name || "مرفق طبي";
                         return L.marker(latlng, { icon: hospitalIcon })
-                            .bindPopup(`<b>${name}</b><br>`);
+                            .bindPopup(`<b>${feature.properties.name || "مستشفى غير معروف"}</b>`);
                     }
-                }).addTo(map);
+                });
+                hospitalsLayer.addLayer(hospitals);
+                map.addLayer(hospitalsLayer);
+
+                // أداة البحث
+                var searchControl = new L.Control.Search({
+                    layer: hospitalsLayer,
+                    propertyName: 'name',
+                    marker: false,
+                    moveToLocation: function(latlng, title, map) {
+                        map.setView(latlng, 15); // تكبير الخريطة عند البحث
+                    }
+                });
+                searchControl.addTo(map);
             });
 
         // مفتاح الخريطة (Legend)
