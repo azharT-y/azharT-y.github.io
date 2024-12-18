@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خريطة المستشفيات في محافظة رام الله</title>
+    <title>خريطة محافظة رام الله والمستشفيات</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
@@ -32,7 +32,7 @@
         // إعداد الخريطة
         var map = L.map('map').setView([31.9, 35.2], 12);
 
-        // إضافة طبقة OpenStreetMap
+        // إضافة خريطة OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
@@ -40,17 +40,17 @@
         // أيقونات مخصصة
         var hospitalIcon = L.icon({
             iconUrl: 'https://cdn-icons-png.flaticon.com/512/2329/2329149.png',
-            iconSize: [40, 40]
+            iconSize: [45, 45]
         });
 
         var clinicIcon = L.icon({
             iconUrl: 'https://cdn-icons-png.flaticon.com/512/2967/2967357.png',
-            iconSize: [40, 40]
+            iconSize: [45, 45]
         });
 
         var emergencyIcon = L.icon({
             iconUrl: 'https://cdn-icons-png.flaticon.com/512/2844/2844036.png',
-            iconSize: [40, 40]
+            iconSize: [45, 45]
         });
 
         // مضلع محافظة رام الله
@@ -62,9 +62,9 @@
                         color: "blue",
                         weight: 2,
                         fillColor: "cyan",
-                        fillOpacity: 0.3
+                        fillOpacity: 0.4
                     }
-                }).bindPopup("محافظة رام الله").addTo(map);
+                }).addTo(map);
             });
 
         // عرض المستشفيات فوق المضلع
@@ -97,5 +97,8 @@
         };
         legend.addTo(map);
     </script>
+</body>
+</html>
+
 </body>
 </html>
