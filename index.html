@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خريطة محافظة رام الله والمستشفيات</title>
+    <title>خريطة المستشفيات ومحافظة رام الله</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-search@3.0.0/dist/leaflet-search.min.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-search@3.0.0/dist/leaflet-search.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-search@3.0.0/dist/leaflet-search.min.css" />
     <style>
         body, html { margin: 0; padding: 0; height: 100%; }
         #map { width: 100%; height: 100vh; }
         .legend {
             background: white;
             padding: 10px;
-            line-height: 1.5em;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            line-height: 1.8em;
         }
         .legend i {
-            width: 30px;
-            height: 30px;
-            float: right;
-            margin-left: 8px;
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            margin-right: 8px;
             background-size: cover;
         }
     </style>
@@ -38,27 +38,22 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // أيقونات المستشفيات
+        // أيقونة المستشفيات
         var hospitalIcon = L.icon({
             iconUrl: 'https://cdn-icons-png.flaticon.com/512/2329/2329149.png',
-            iconSize: [40, 40]
+            iconSize: [30, 30]
         });
 
-        // مضلع محافظة رام الله
+        // تحميل مضلع محافظة رام الله
         fetch('RamallahZones.json')
             .then(response => response.json())
             .then(data => {
                 L.geoJSON(data, {
-                    style: {
-                        color: "blue",
-                        weight: 2,
-                        fillColor: "cyan",
-                        fillOpacity: 0.3
-                    }
-                }).addTo(map);
+                    style: { color: "blue", weight: 2, fillColor: "cyan", fillOpacity: 0.3 }
+                }).bindPopup("محافظة رام الله").addTo(map);
             });
 
-        // عرض المستشفيات مع إضافة أداة البحث
+        // تحميل المستشفيات
         var hospitalsLayer = L.layerGroup();
         fetch('Hospitals.geojson')
             .then(response => response.json())
@@ -72,19 +67,19 @@
                 hospitalsLayer.addLayer(hospitals);
                 map.addLayer(hospitalsLayer);
 
-                // أداة البحث
+                // إضافة أداة البحث
                 var searchControl = new L.Control.Search({
                     layer: hospitalsLayer,
                     propertyName: 'name',
                     marker: false,
-                    moveToLocation: function(latlng, title, map) {
-                        map.setView(latlng, 15); // تكبير الخريطة عند البحث
+                    moveToLocation: function (latlng, title, map) {
+                        map.setView(latlng, 14);
                     }
                 });
                 searchControl.addTo(map);
             });
 
-        // مفتاح الخريطة (Legend)
+        // إضافة مفتاح الخريطة
         var legend = L.control({ position: 'bottomleft' });
         legend.onAdd = function () {
             var div = L.DomUtil.create('div', 'legend');
@@ -96,6 +91,3 @@
     </script>
 </body>
 </html>
-python -m http.server 8000
-http://localhost:8000
-
