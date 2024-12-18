@@ -40,17 +40,7 @@
         // أيقونات مخصصة
         var hospitalIcon = L.icon({
             iconUrl: 'https://cdn-icons-png.flaticon.com/512/2329/2329149.png',
-            iconSize: [45, 45]
-        });
-
-        var clinicIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2967/2967357.png',
-            iconSize: [45, 45]
-        });
-
-        var emergencyIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2844/2844036.png',
-            iconSize: [45, 45]
+            iconSize: [40, 40]
         });
 
         // مضلع محافظة رام الله
@@ -64,23 +54,17 @@
                         fillColor: "cyan",
                         fillOpacity: 0.4
                     }
-                }).addTo(map);
+                }).bindPopup("محافظة رام الله").addTo(map);
             });
 
         // عرض المستشفيات فوق المضلع
-        fetch('HealthFacititi.geojson')
+        fetch('Hospitals.geojson')
             .then(response => response.json())
             .then(data => {
                 L.geoJSON(data, {
                     pointToLayer: function (feature, latlng) {
-                        var type = feature.properties.type || "hospital";
-                        var icon = hospitalIcon;
-
-                        if (type.toLowerCase().includes("clinic")) icon = clinicIcon;
-                        if (type.toLowerCase().includes("emergency")) icon = emergencyIcon;
-
-                        return L.marker(latlng, { icon: icon })
-                            .bindPopup(`<b>${feature.properties.name || "مرفق طبي"}</b><br>النوع: ${type}`);
+                        return L.marker(latlng, { icon: hospitalIcon })
+                            .bindPopup(`<b>${feature.properties.name || "مرفق طبي"}</b><br>النوع: ${feature.properties.type || "غير محدد"}`);
                     }
                 }).addTo(map);
             });
@@ -90,8 +74,6 @@
         legend.onAdd = function () {
             var div = L.DomUtil.create('div', 'legend');
             div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/2329/2329149.png);"></i> مستشفى<br>';
-            div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/2967/2967357.png);"></i> مركز طبي<br>';
-            div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/2844/2844036.png);"></i> مركز طوارئ<br>';
             div.innerHTML += '<i style="background: cyan;"></i> محافظة رام الله';
             return div;
         };
@@ -99,4 +81,3 @@
     </script>
 </body>
 </html>
-
