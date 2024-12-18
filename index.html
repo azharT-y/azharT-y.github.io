@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خريطة محافظة رام الله والمرافق الطبية</title>
+    <title>خريطة المستشفيات ومحافظة رام الله</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
@@ -17,51 +17,35 @@
     <div id="map"></div>
 
     <script>
-        // إنشاء الخريطة
         var map = L.map('map').setView([31.9, 35.2], 13);
 
-        // إضافة طبقة OpenStreetMap
+        // إضافة طبقة خريطة OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // أيقونات خاصة بالمرافق الطبية
+        // أيقونات المستشفيات
         var hospitalIcon = L.icon({
             iconUrl: 'https://cdn-icons-png.flaticon.com/512/2329/2329149.png',
             iconSize: [30, 30]
         });
 
-        var clinicIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2967/2967357.png',
-            iconSize: [30, 30]
-        });
-
-        var emergencyIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2844/2844036.png',
-            iconSize: [30, 30]
-        });
-
-        // بيانات مضلع محافظة رام الله
+        // تحميل مضلع محافظة رام الله
         fetch('RamallahZones.json')
             .then(response => response.json())
             .then(data => {
                 L.geoJSON(data, {
-                    style: { color: "blue", weight: 2, fillColor: "cyan", fillOpacity: 0.4 }
+                    style: { color: "blue", weight: 2, fillColor: "cyan", fillOpacity: 0.3 }
                 }).bindPopup("محافظة رام الله").addTo(map);
             });
 
-        // إضافة المرافق الطبية
+        // تحميل المستشفيات من ملف GeoJSON
         fetch('HealthFacititi_FeaturesToJSO.geojson')
             .then(response => response.json())
             .then(data => {
                 L.geoJSON(data, {
                     pointToLayer: function (feature, latlng) {
-                        var icon = hospitalIcon;
-                        var type = feature.properties.type;
-                        if (type === "clinic") icon = clinicIcon;
-                        if (type === "emergency") icon = emergencyIcon;
-
-                        return L.marker(latlng, { icon: icon })
+                        return L.marker(latlng, { icon: hospitalIcon })
                             .bindPopup(`<b>${feature.properties.name}</b>`);
                     }
                 }).addTo(map);
@@ -72,17 +56,10 @@
         legend.onAdd = function () {
             var div = L.DomUtil.create('div', 'legend');
             div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/2329/2329149.png);"></i> مستشفى<br>';
-            div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/2967/2967357.png);"></i> مركز طبي<br>';
-            div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/2844/2844036.png);"></i> طوارئ<br>';
+            div.innerHTML += '<i style="background: cyan;"></i> محافظة رام الله<br>';
             return div;
         };
         legend.addTo(map);
-    </script>
-</body>
-</html>
-
-
-        map.addControl(searchControl);
     </script>
 </body>
 </html>
