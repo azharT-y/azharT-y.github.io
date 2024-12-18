@@ -7,6 +7,9 @@
     <!-- مكتبة Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- مكتبة Leaflet.Control.Search -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-control-search@2.9.8/dist/leaflet-search.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-control-search@2.9.8/dist/leaflet-search.min.js"></script>
     <style>
         body, html { margin: 0; padding: 0; height: 100%; }
         #map { width: 100%; height: 100vh; }
@@ -35,7 +38,7 @@
 
     <script>
         // إعداد الخريطة
-        var map = L.map('map').setView([31.9, 35.2], 12);
+        var map = L.map('map').setView([31.9028, 35.2075], 12);
 
         // إضافة خريطة OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -64,13 +67,6 @@
             popupAnchor: [0, -30]
         });
 
-        var pharmacyIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/1057/1057246.png',
-            iconSize: [30, 30],
-            iconAnchor: [15, 30],
-            popupAnchor: [0, -30]
-        });
-
         // بيانات المستشفيات والمراكز الطبية
         var facilities = [
             { "name": "مجمع فلسطين الطبي", "coords": [31.8988, 35.2048], "type": "hospital" },
@@ -88,8 +84,7 @@
             { "name": "مستشفى د. ضرغام", "coords": [31.8950, 35.2101], "type": "hospital" },
             { "name": "مركز هيلث هاوس", "coords": [31.9032, 35.1985], "type": "medicalCenter" },
             { "name": "مستشفى الاستشاري", "coords": [31.9100, 35.2150], "type": "hospital" },
-            { "name": "مركز كلينكير الطبي", "coords": [31.9040, 35.2001], "type": "medicalCenter" },
-            { "name": "صيدلية رام الله", "coords": [31.9022, 35.2062], "type": "pharmacy" }
+            { "name": "مركز كلينكير الطبي", "coords": [31.9040, 35.2001], "type": "medicalCenter" }
         ];
 
         // إضافة المستشفيات إلى الخريطة
@@ -101,15 +96,13 @@
                 icon = medicalCenterIcon;
             } else if (facility.type === "emergency") {
                 icon = emergencyIcon;
-            } else if (facility.type === "pharmacy") {
-                icon = pharmacyIcon;
             }
             L.marker(facility.coords, { icon: icon })
              .bindPopup(`<b>${facility.name}</b>`)
              .addTo(map);
         });
 
-        // مضلع محافظة رام الله (على سبيل المثال)
+        // مضلع محافظة رام الله (منطقة تقريبية)
         var ramallahPolygon = {
             "type": "Feature",
             "geometry": {
@@ -140,11 +133,23 @@
             div.innerHTML += '<div><i style="background-image: url(\'https://cdn-icons-png.flaticon.com/512/3456/3456552.png\'); background-size: cover;"></i> مستشفى</div>';
             div.innerHTML += '<div><i style="background-image: url(\'https://cdn-icons-png.flaticon.com/512/3456/3456512.png\'); background-size: cover;"></i> مركز طبي</div>';
             div.innerHTML += '<div><i style="background-image: url(\'https://cdn-icons-png.flaticon.com/512/3456/3456568.png\'); background-size: cover;"></i> مركز طوارئ</div>';
-            div.innerHTML += '<div><i style="background-image: url(\'https://cdn-icons-png.flaticon.com/512/1057/1057246.png\'); background-size: cover;"></i> صيدلية</div>';
             return div;
         };
 
         legend.addTo(map);
+
+        // إضافة شريط البحث
+        var searchControl = new L.Control.Search({
+            layer: L.layerGroup(facilities.map(facility => {
+                return L.marker(facility.coords, { icon: facility.type === "hospital" ? hospitalIcon : (facility.type === "medicalCenter" ? medicalCenterIcon : emergencyIcon) }).bindPopup(facility.name);
+            })),
+            initial: false,
+            zoom: 18,
+            marker: false,
+            textErr: 'لم يتم العثور على شيء'
+        });
+
+        map.addControl(searchControl);
     </script>
 </body>
 </html>
