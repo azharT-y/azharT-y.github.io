@@ -10,6 +10,30 @@
     <style>
         body, html { margin: 0; padding: 0; height: 100%; }
         #map { width: 100%; height: 100vh; }
+        .leaflet-control-search {
+            position: absolute;
+            top: 10px;
+            right: 50px;
+            z-index: 1000;
+        }
+        .legend {
+            background-color: white;
+            padding: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        .legend h4 {
+            margin: 0 0 5px;
+        }
+        .legend div {
+            margin-bottom: 5px;
+        }
+        .legend i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body>
@@ -32,29 +56,51 @@
             popupAnchor: [0, -30]
         });
 
+        var medicalCenterIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/3456/3456512.png',
+            iconSize: [30, 30],
+            iconAnchor: [15, 30],
+            popupAnchor: [0, -30]
+        });
+
+        var emergencyIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/3456/3456568.png',
+            iconSize: [30, 30],
+            iconAnchor: [15, 30],
+            popupAnchor: [0, -30]
+        });
+
         // بيانات المستشفيات والمراكز الطبية
         var facilities = [
-            { "name": "مجمع فلسطين الطبي", "coords": [31.8988, 35.2048] },
-            { "name": "مستشفى الرعاية التخصصي", "coords": [31.9053, 35.2050] },
-            { "name": "مستشفى الهلال الأحمر", "coords": [31.9080, 35.2085] },
-            { "name": "مركز الأمل الطبي", "coords": [31.9020, 35.2025] },
-            { "name": "مستشفى المستقبل", "coords": [31.9060, 35.2090] },
-            { "name": "مستشفى خالد الحرامي", "coords": [31.9005, 35.2033] },
-            { "name": "مستشفى أبويا", "coords": [31.9015, 35.2075] },
-            { "name": "مركز الطوارئ", "coords": [31.8993, 35.2028] },
-            { "name": "مركز الراجحي الطبي", "coords": [31.9075, 35.2130] },
-            { "name": "مستشفى القدس", "coords": [31.9050, 35.2020] },
-            { "name": "مستشفى الحياة", "coords": [31.9025, 35.2055] },
-            { "name": "مستشفى الطوارئ بيتونيا", "coords": [31.8995, 35.1920] },
-            { "name": "مستشفى د. ضرغام", "coords": [31.8950, 35.2101] },
-            { "name": "مركز هيلث هاوس", "coords": [31.9032, 35.1985] },
-            { "name": "مستشفى الاستشاري", "coords": [31.9100, 35.2150] },
-            { "name": "مركز كلينكير الطبي", "coords": [31.9040, 35.2001] }
+            { "name": "مجمع فلسطين الطبي", "coords": [31.8988, 35.2048], "type": "hospital" },
+            { "name": "مستشفى الرعاية التخصصي", "coords": [31.9053, 35.2050], "type": "hospital" },
+            { "name": "مستشفى الهلال الأحمر", "coords": [31.9080, 35.2085], "type": "hospital" },
+            { "name": "مركز الأمل الطبي", "coords": [31.9020, 35.2025], "type": "medicalCenter" },
+            { "name": "مستشفى المستقبل", "coords": [31.9060, 35.2090], "type": "hospital" },
+            { "name": "مستشفى خالد الحرامي", "coords": [31.9005, 35.2033], "type": "hospital" },
+            { "name": "مستشفى أبويا", "coords": [31.9015, 35.2075], "type": "hospital" },
+            { "name": "مركز الطوارئ", "coords": [31.8993, 35.2028], "type": "emergency" },
+            { "name": "مركز الراجحي الطبي", "coords": [31.9075, 35.2130], "type": "medicalCenter" },
+            { "name": "مستشفى القدس", "coords": [31.9050, 35.2020], "type": "hospital" },
+            { "name": "مستشفى الحياة", "coords": [31.9025, 35.2055], "type": "hospital" },
+            { "name": "مستشفى الطوارئ بيتونيا", "coords": [31.8995, 35.1920], "type": "emergency" },
+            { "name": "مستشفى د. ضرغام", "coords": [31.8950, 35.2101], "type": "hospital" },
+            { "name": "مركز هيلث هاوس", "coords": [31.9032, 35.1985], "type": "medicalCenter" },
+            { "name": "مستشفى الاستشاري", "coords": [31.9100, 35.2150], "type": "hospital" },
+            { "name": "مركز كلينكير الطبي", "coords": [31.9040, 35.2001], "type": "medicalCenter" }
         ];
 
         // إضافة المستشفيات إلى الخريطة
         facilities.forEach(function(facility) {
-            L.marker(facility.coords, { icon: hospitalIcon })
+            var icon;
+            if (facility.type === "hospital") {
+                icon = hospitalIcon;
+            } else if (facility.type === "medicalCenter") {
+                icon = medicalCenterIcon;
+            } else if (facility.type === "emergency") {
+                icon = emergencyIcon;
+            }
+            L.marker(facility.coords, { icon: icon })
              .bindPopup(`<b>${facility.name}</b>`)
              .addTo(map);
         });
@@ -80,10 +126,32 @@
         L.geoJSON(ramallahPolygon, {
             style: { color: "blue", weight: 2, fillColor: "cyan", fillOpacity: 0.4 }
         }).bindPopup("<b>محافظة رام الله</b>").addTo(map);
+
+        // إضافة ليجند (وسيلة الإيضاح)
+        var legend = L.control({ position: 'bottomright' });
+
+        legend.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML += '<h4>وسيلة الإيضاح</h4>';
+            div.innerHTML += '<div><i style="background-image: url(\'https://cdn-icons-png.flaticon.com/512/3456/3456552.png\');"></i> مستشفى</div>';
+            div.innerHTML += '<div><i style="background-image: url(\'https://cdn-icons-png.flaticon.com/512/3456/3456512.png\');"></i> مركز طبي</div>';
+            div.innerHTML += '<div><i style="background-image: url(\'https://cdn-icons-png.flaticon.com/512/3456/3456568.png\');"></i> مركز طوارئ</div>';
+            return div;
+        };
+
+        legend.addTo(map);
+
+        // إضافة شريط البحث
+        var searchControl = new L.Control.Search({
+            layer: L.layerGroup(),
+            initial: false,
+            zoom: 18,
+            marker: false,
+            textErr: 'لم يتم العثور على شيء'
+        });
+
+        map.addControl(searchControl);
+
     </script>
 </body>
 </html>
-python -m http.server 8000
-http://localhost:8000
-
-
