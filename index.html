@@ -29,7 +29,7 @@
     <div id="map"></div>
 
     <script>
-        // إعداد الخريطة
+        // إنشاء الخريطة
         var map = L.map('map').setView([31.9, 35.2], 12);
 
         // إضافة خريطة OpenStreetMap
@@ -53,7 +53,7 @@
             iconSize: [40, 40]
         });
 
-        // مضلع محافظة رام الله
+        // تحميل مضلع محافظة رام الله
         fetch('RamallahZones.json')
             .then(response => response.json())
             .then(data => {
@@ -73,14 +73,14 @@
             .then(data => {
                 L.geoJSON(data, {
                     pointToLayer: function (feature, latlng) {
-                        var type = feature.properties.type; // تصنيف المرفق
+                        var type = feature.properties.type || "hospital";
                         var icon = hospitalIcon;
 
                         if (type === "clinic") icon = clinicIcon;
                         if (type === "emergency") icon = emergencyIcon;
 
                         return L.marker(latlng, { icon: icon })
-                            .bindPopup(`<b>${feature.properties.name || "مرفق طبي"}</b><br>النوع: ${type || "غير محدد"}`);
+                            .bindPopup(`<b>${feature.properties.name || "مرفق طبي"}</b><br>النوع: ${type}`);
                     }
                 }).addTo(map);
             });
