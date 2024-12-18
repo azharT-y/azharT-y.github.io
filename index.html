@@ -29,7 +29,7 @@
     <div id="map"></div>
 
     <script>
-        // إنشاء الخريطة
+        // إعداد الخريطة
         var map = L.map('map').setView([31.9, 35.2], 12);
 
         // إضافة خريطة OpenStreetMap
@@ -37,7 +37,7 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // أيقونات مخصصة لكل نوع من المرافق الطبية
+        // أيقونات مخصصة
         var hospitalIcon = L.icon({
             iconUrl: 'https://cdn-icons-png.flaticon.com/512/2329/2329149.png',
             iconSize: [40, 40]
@@ -53,7 +53,7 @@
             iconSize: [40, 40]
         });
 
-        // تحميل مضلع محافظة رام الله
+        // مضلع محافظة رام الله
         fetch('RamallahZones.json')
             .then(response => response.json())
             .then(data => {
@@ -67,19 +67,20 @@
                 }).bindPopup("محافظة رام الله").addTo(map);
             });
 
-        // تحميل المرافق الطبية
+        // عرض المرافق الطبية
         fetch('HealthFacititi_FeaturesToJSO.geojson')
             .then(response => response.json())
             .then(data => {
                 L.geoJSON(data, {
                     pointToLayer: function (feature, latlng) {
-                        // اختيار الأيقونة بناءً على النوع
+                        var type = feature.properties.type; // تصنيف المرفق
                         var icon = hospitalIcon;
-                        if (feature.properties.type === "clinic") icon = clinicIcon;
-                        if (feature.properties.type === "emergency") icon = emergencyIcon;
+
+                        if (type === "clinic") icon = clinicIcon;
+                        if (type === "emergency") icon = emergencyIcon;
 
                         return L.marker(latlng, { icon: icon })
-                            .bindPopup(`<b>${feature.properties.name}</b>`);
+                            .bindPopup(`<b>${feature.properties.name || "مرفق طبي"}</b><br>النوع: ${type || "غير محدد"}`);
                     }
                 }).addTo(map);
             });
@@ -98,4 +99,3 @@
     </script>
 </body>
 </html>
-
