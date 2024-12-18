@@ -3,151 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خريطة المستشفيات ومحافظة رام الله</title>
-    <!-- مكتبة Leaflet -->
+    <title>خريطة محافظة رام الله والمرافق الطبية</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- مكتبة Leaflet.Control.Search -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-control-search@2.9.8/dist/leaflet-search.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/leaflet-control-search@2.9.8/dist/leaflet-search.min.js"></script>
     <style>
         body, html { margin: 0; padding: 0; height: 100%; }
         #map { width: 100%; height: 100vh; }
-        .legend {
-            background-color: white;
-            padding: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-        }
-        .legend h4 {
-            margin: 0 0 5px;
-        }
-        .legend div {
-            margin-bottom: 5px;
-        }
-        .legend i {
-            width: 18px;
-            height: 18px;
-            float: left;
-            margin-right: 8px;
-            opacity: 0.7;
-        }
+        .legend { background: white; padding: 10px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .legend i { width: 20px; height: 20px; float: right; margin-left: 8px; opacity: 0.9; background-size: cover; }
     </style>
 </head>
 <body>
     <div id="map"></div>
 
     <script>
-        // إعداد الخريطة
-        var map = L.map('map').setView([31.9028, 35.2075], 12);
+        // إنشاء الخريطة
+        var map = L.map('map').setView([31.9, 35.2], 13);
 
-        // إضافة خريطة OpenStreetMap
+        // إضافة طبقة OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // أيقونات مخصصة
+        // أيقونات خاصة بالمرافق الطبية
         var hospitalIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/3456/3456552.png',
-            iconSize: [30, 30],
-            iconAnchor: [15, 30],
-            popupAnchor: [0, -30]
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2329/2329149.png',
+            iconSize: [30, 30]
         });
 
-        var medicalCenterIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/3456/3456512.png',
-            iconSize: [30, 30],
-            iconAnchor: [15, 30],
-            popupAnchor: [0, -30]
+        var clinicIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2967/2967357.png',
+            iconSize: [30, 30]
         });
 
         var emergencyIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/3456/3456568.png',
-            iconSize: [30, 30],
-            iconAnchor: [15, 30],
-            popupAnchor: [0, -30]
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2844/2844036.png',
+            iconSize: [30, 30]
         });
 
-        // بيانات المستشفيات والمراكز الطبية
-        var facilities = [
-            { "name": "مجمع فلسطين الطبي", "coords": [31.8988, 35.2048], "type": "hospital" },
-            { "name": "مستشفى الرعاية التخصصي", "coords": [31.9053, 35.2050], "type": "hospital" },
-            { "name": "مستشفى الهلال الأحمر", "coords": [31.9080, 35.2085], "type": "hospital" },
-            { "name": "مركز الأمل الطبي", "coords": [31.9020, 35.2025], "type": "medicalCenter" },
-            { "name": "مستشفى المستقبل", "coords": [31.9060, 35.2090], "type": "hospital" },
-            { "name": "مستشفى خالد الحرامي", "coords": [31.9005, 35.2033], "type": "hospital" },
-            { "name": "مستشفى أبويا", "coords": [31.9015, 35.2075], "type": "hospital" },
-            { "name": "مركز الطوارئ", "coords": [31.8993, 35.2028], "type": "emergency" },
-            { "name": "مركز الراجحي الطبي", "coords": [31.9075, 35.2130], "type": "medicalCenter" },
-            { "name": "مستشفى القدس", "coords": [31.9050, 35.2020], "type": "hospital" },
-            { "name": "مستشفى الحياة", "coords": [31.9025, 35.2055], "type": "hospital" },
-            { "name": "مستشفى الطوارئ بيتونيا", "coords": [31.8995, 35.1920], "type": "emergency" },
-            { "name": "مستشفى د. ضرغام", "coords": [31.8950, 35.2101], "type": "hospital" },
-            { "name": "مركز هيلث هاوس", "coords": [31.9032, 35.1985], "type": "medicalCenter" },
-            { "name": "مستشفى الاستشاري", "coords": [31.9100, 35.2150], "type": "hospital" },
-            { "name": "مركز كلينكير الطبي", "coords": [31.9040, 35.2001], "type": "medicalCenter" }
-        ];
+        // بيانات مضلع محافظة رام الله
+        fetch('RamallahZones.json')
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    style: { color: "blue", weight: 2, fillColor: "cyan", fillOpacity: 0.4 }
+                }).bindPopup("محافظة رام الله").addTo(map);
+            });
 
-        // إضافة المستشفيات إلى الخريطة
-        facilities.forEach(function(facility) {
-            var icon;
-            if (facility.type === "hospital") {
-                icon = hospitalIcon;
-            } else if (facility.type === "medicalCenter") {
-                icon = medicalCenterIcon;
-            } else if (facility.type === "emergency") {
-                icon = emergencyIcon;
-            }
-            L.marker(facility.coords, { icon: icon })
-             .bindPopup(`<b>${facility.name}</b>`)
-             .addTo(map);
-        });
+        // إضافة المرافق الطبية
+        fetch('HealthFacititi_FeaturesToJSO.geojson')
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    pointToLayer: function (feature, latlng) {
+                        var icon = hospitalIcon;
+                        var type = feature.properties.type;
+                        if (type === "clinic") icon = clinicIcon;
+                        if (type === "emergency") icon = emergencyIcon;
 
-        // مضلع محافظة رام الله (منطقة تقريبية)
-        var ramallahPolygon = {
-            "type": "Feature",
-            "geometry": {
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        [35.163, 31.871],
-                        [35.255, 31.871],
-                        [35.255, 31.985],
-                        [35.163, 31.985],
-                        [35.163, 31.871]
-                    ]
-                ]
-            }
-        };
+                        return L.marker(latlng, { icon: icon })
+                            .bindPopup(`<b>${feature.properties.name}</b>`);
+                    }
+                }).addTo(map);
+            });
 
-        // إضافة مضلع محافظة رام الله
-        L.geoJSON(ramallahPolygon, {
-            style: { color: "blue", weight: 2, fillColor: "cyan", fillOpacity: 0.4 }
-        }).bindPopup("<b>محافظة رام الله والبيرة</b>").addTo(map);
-
-        // إضافة وسيلة إيضاح
-        var legend = L.control({ position: 'bottomright' });
-
-        legend.onAdd = function (map) {
+        // إضافة مفتاح الخريطة
+        var legend = L.control({ position: 'bottomleft' });
+        legend.onAdd = function () {
             var div = L.DomUtil.create('div', 'legend');
-            div.innerHTML += '<h4>وسيلة الإيضاح</h4>';
-            div.innerHTML += '<div><i style="background-image: url(\'https://cdn-icons-png.flaticon.com/512/3456/3456552.png\'); background-size: cover;"></i> مستشفى</div>';
-            div.innerHTML += '<div><i style="background-image: url(\'https://cdn-icons-png.flaticon.com/512/3456/3456512.png\'); background-size: cover;"></i> مركز طبي</div>';
-            div.innerHTML += '<div><i style="background-image: url(\'https://cdn-icons-png.flaticon.com/512/3456/3456568.png\'); background-size: cover;"></i> مركز طوارئ</div>';
+            div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/2329/2329149.png);"></i> مستشفى<br>';
+            div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/2967/2967357.png);"></i> مركز طبي<br>';
+            div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/2844/2844036.png);"></i> طوارئ<br>';
             return div;
         };
-
         legend.addTo(map);
+    </script>
+</body>
+</html>
 
-        // إضافة شريط البحث
-        var searchControl = new L.Control.Search({
-            layer: L.layerGroup(facilities.map(facility => {
-                return L.marker(facility.coords, { icon: facility.type === "hospital" ? hospitalIcon : (facility.type === "medicalCenter" ? medicalCenterIcon : emergencyIcon) }).bindPopup(facility.name);
-            })),
-            initial: false,
-            zoom: 18,
-            marker: false,
-            textErr: 'لم يتم العثور على شيء'
-        });
 
         map.addControl(searchControl);
     </script>
