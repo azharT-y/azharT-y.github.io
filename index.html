@@ -38,10 +38,10 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // أيقونة المستشفيات الجديدة (الشكل الأحمر)
+        // أيقونة المستشفيات (الأيقونة الحمراء)
         var hospitalIcon = L.icon({
-            iconUrl: 'YOUR_ICON_URL_HERE', // استبدل بـ رابط الصورة المرفقة
-            iconSize: [40, 40], // تكبير الأيقونة
+            iconUrl: 'https://i.imgur.com/eLczvma.png', // صورة الأيقونة الجديدة (ارفع الصورة هنا)
+            iconSize: [40, 40], // حجم الأيقونة
             iconAnchor: [20, 40],
             popupAnchor: [0, -40]
         });
@@ -72,6 +72,16 @@
                 map.fitBounds(hospitalsLayer.getBounds());
             })
             .catch(error => console.error("خطأ في تحميل ملف Hospitals.geojson:", error));
+
+        // إضافة مفتاح الخريطة (Legend)
+        var legend = L.control({ position: 'bottomright' });
+        legend.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML += '<i style="background-image: url(https://i.imgur.com/eLczvma.png);"></i> مستشفى<br>';
+            div.innerHTML += '<i style="background: cyan; border: 1px solid blue; display: inline-block; width: 20px; height: 20px;"></i> محافظة رام الله';
+            return div;
+        };
+        legend.addTo(map);
     </script>
 </body>
 </html>
