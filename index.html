@@ -62,6 +62,11 @@
             .then(data => {
                 var hospitalsLayer = L.geoJSON(data, {
                     pointToLayer: function (feature, latlng) {
+                        // التحقق من وجود خاصية الاسم
+                        if (!feature.properties || !feature.properties.name) {
+                            console.warn("النقطة تفتقد خاصية 'name'", feature);
+                        }
+
                         // إضافة الأيقونة الجديدة
                         return L.marker(latlng, { icon: hospitalIcon })
                             .bindPopup(`<b>${feature.properties.name || "اسم غير متوفر"}</b>`); // عرض اسم المستشفى
@@ -110,4 +115,3 @@
         }
     ]
 }
-
