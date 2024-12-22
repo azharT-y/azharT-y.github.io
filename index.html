@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خريطة المستشفيات ومحافظة رام الله</title>
+    <title>خريطة المستشفيات والمراكز الصحية</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-search@3.0.0/dist/leaflet-search.min.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-search@3.0.0/dist/leaflet-search.min.js"></script>
     <style>
         body, html { margin: 0; padding: 0; height: 100%; }
         #map { width: 100%; height: 100vh; }
@@ -16,6 +14,7 @@
             padding: 10px;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            font-size: 14px;
             line-height: 1.8em;
         }
         .legend i {
@@ -31,6 +30,7 @@
     <div id="map"></div>
 
     <script>
+        // إعداد الخريطة
         var map = L.map('map').setView([31.9, 35.2], 12);
 
         // طبقة OpenStreetMap
@@ -38,60 +38,104 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // أيقونة المستشفيات
+        // أيقونات المستشفيات والمراكز الصحية
         var hospitalIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2329/2329149.png',
-            iconSize: [30, 30]
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2329/2329149.png', // أيقونة المستشفى
+            iconSize: [40, 40],
+            iconAnchor: [20, 40],
+            popupAnchor: [0, -40]
+        });
+
+        var healthCenterIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/3649/3649463.png', // أيقونة المركز الصحي
+            iconSize: [40, 40],
+            iconAnchor: [20, 40],
+            popupAnchor: [0, -40]
         });
 
         // تحميل مضلع محافظة رام الله
         fetch('RamallahZones.json')
             .then(response => response.json())
             .then(data => {
-                L.geoJSON(data, {
-                    style: { color: "blue", weight: 2, fillColor: "transparent", fillOpacity: 0 }
+                var ramallahLayer = L.geoJSON(data, {
+                    style: {
+                        color: "blue",
+                        weight: 2,
+                        fillColor: "cyan",
+                        fillOpacity: 0.3
+                    }
                 }).bindPopup("محافظة رام الله").addTo(map);
-                console.log("تم تحميل ملف RamallahZones.json بنجاح");
             })
             .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
 
-        // تحميل المستشفيات والتأكد من ظهورها فوق الخريطة
-        var hospitalsLayer = L.layerGroup();
+        // تحميل المستشفيات والمراكز الصحية
         fetch('Hospitals.geojson')
             .then(response => response.json())
             .then(data => {
-                var hospitals = L.geoJSON(data, {
+                var hospitalsLayer = L.geoJSON(data, {
                     pointToLayer: function (feature, latlng) {
-                        return L.marker(latlng, { icon: hospitalIcon })
-                            .bindPopup(`<b>${feature.properties.name || "مستشفى غير معروف"}</b>`);
+                        // اختيار الأيقونة بناءً على النوع
+                        var icon = feature.properties.type === 'hospital' ? hospitalIcon : healthCenterIcon;
+                        return L.marker(latlng, { icon: icon })
+                            .bindPopup(`<b>${feature.properties.name || "اسم غير متوفر"}</b>`);
                     }
-                });
-                hospitalsLayer.addLayer(hospitals);
-                map.addLayer(hospitalsLayer);
-                console.log("تم تحميل ملف Hospitals.geojson بنجاح");
+                }).addTo(map);
 
-                // إضافة أداة البحث
-                var searchControl = new L.Control.Search({
-                    layer: hospitalsLayer,
-                    propertyName: 'name',
-                    marker: false,
-                    moveToLocation: function (latlng, title, map) {
-                        map.setView(latlng, 14);
-                    }
-                });
-                searchControl.addTo(map);
+                // ضبط الخريطة لتناسب جميع النقاط
+                map.fitBounds(hospitalsLayer.getBounds());
             })
-            .catch(error => console.error("خطأ في تحميل ملف المستشفيات:", error));
+            .catch(error => console.error("خطأ في تحميل ملف Hospitals.geojson:", error));
 
-        // إضافة مفتاح الخريطة
-        var legend = L.control({ position: 'bottomleft' });
+        // إضافة مفتاح الخريطة (Legend)
+        var legend = L.control({ position: 'bottomright' });
         legend.onAdd = function () {
             var div = L.DomUtil.create('div', 'legend');
             div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/2329/2329149.png);"></i> مستشفى<br>';
-            div.innerHTML += '<i style="background: transparent; border: 1px solid blue;"></i> محافظة رام الله';
+            div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/3649/3649463.png);"></i> مركز صحي<br>';
+            div.innerHTML += '<i style="background: cyan; border: 1px solid blue; display: inline-block;"></i> محافظة رام الله';
             return div;
         };
         legend.addTo(map);
     </script>
 </body>
 </html>
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[[35.2, 31.8], [35.3, 31.8], [35.3, 31.9], [35.2, 31.9], [35.2, 31.8]]]
+            },
+            "properties": {}
+        }
+    ]
+}
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "مستشفى رام الله",
+                "type": "hospital"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [35.2, 31.9]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "مركز صحي البيرة",
+                "type": "health_center"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [35.215, 31.922]
+            }
+        }
+    ]
+}
