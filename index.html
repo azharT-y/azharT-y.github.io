@@ -69,10 +69,15 @@
                         var nameAr = feature.properties.BUSNIESS_N || "اسم غير متوفر";
                         var city = feature.properties.CITY || "مدينة غير معروفة";
                         var type = feature.properties.TYPE || "hospital";
-                        var category = feature.properties.CATEGORY || "غير معروف";
+                        var category = feature.properties.CATEGORY;
 
                         // تحديد الرموز التعبيرية
-                        var emoji = type === "hospital" ? "🏥" : "🩺";
+                        var emoji;
+                        if (type === "hospital") {
+                            emoji = "🏥";
+                        } else {
+                            emoji = "🩺";
+                        }
 
                         var marker = L.divIcon({
                             className: '',
@@ -83,7 +88,7 @@
 
                         // محتوى النوافذ المنبثقة (Popup)
                         var popupContent = `<b>${nameAr}</b><br>المدينة: ${city}`;
-                        if (type === "hospital") {
+                        if (type === "hospital" && category) {
                             popupContent += `<br>التصنيف: ${category}`;
                         }
 
