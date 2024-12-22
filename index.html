@@ -16,7 +16,7 @@
             background: white;
             padding: 10px;
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
             font-size: 14px;
             line-height: 1.8em;
             z-index: 1000;
@@ -48,7 +48,6 @@
     <div id="map"></div>
     <div class="search-container">
         <input type="text" id="search-input" placeholder="Search for a hospital or health center" style="width: 200px; padding: 5px; border: 1px solid #ccc; border-radius: 5px;" />
-        <ul id="search-results" style="list-style: none; margin: 5px 0; padding: 0;"></ul>
     </div>
     <div class="filter-btn" id="filter-btn">Classify Hospitals</div>
 
@@ -70,22 +69,23 @@
             })
             .catch(error => console.error("Error loading RamallahZones.json:", error));
 
-        var facilitiesLayer;
         var allFacilities = [];
-        var markers = [];
 
         // Load hospitals and health centers
         fetch('Hospitals.geojson')
             .then(response => response.json())
             .then(data => {
-                facilitiesLayer = L.geoJSON(data, {
+                L.geoJSON(data, {
                     pointToLayer: function (feature, latlng) {
-                        var type = feature.properties.type; // Public or Private
-                        var category = feature.properties.category; // hospital or health_center
+                        // Extract properties and check for missing values
+                        var name = feature.properties.name || "No name provided";
+                        var type = feature.properties.type || "Type not specified";
+                        var category = feature.properties.category || "Category not specified";
                         var emoji = category === "hospital" ? "🏥" : "🩺";
-                        var defaultColor = type === "Public" ? "green" : "blue";
+                        var color = type === "Public" ? "green" : "blue";
 
-                        var iconHtml = `<span style="color:${defaultColor}; font-size: 24px;">${emoji}</span>`;
+                        // Create the marker with the appropriate icon
+                        var iconHtml = `<span style="color:${color}; font-size: 24px;">${emoji}</span>`;
                         var marker = L.divIcon({
                             className: '',
                             html: `<div style="text-align: center;">${iconHtml}</div>`,
@@ -94,71 +94,18 @@
                         });
 
                         var facilityMarker = L.marker(latlng, { icon: marker })
-                            .bindPopup(`<b>${feature.properties.name}</b><br>Type: ${type}<br>Category: ${category}`)
+                            .bindPopup(`<b>${name}</b><br>Type: ${type}<br>Category: ${category}`)
                             .addTo(map);
 
                         allFacilities.push({
-                            name: feature.properties.name,
-                            type: feature.properties.type,
-                            category: feature.properties.category,
+                            name: name,
+                            type: type,
+                            category: category,
                             latlng: latlng,
                             marker: facilityMarker
                         });
 
                         return facilityMarker;
-                    }
-                }).addTo(map);
-
-                // Search tool
-                const searchInput = document.getElementById("search-input");
-                const searchResults = document.getElementById("search-results");
-                searchInput.addEventListener("input", function () {
-                    const query = searchInput.value.toLowerCase();
-                    searchResults.innerHTML = "";
-                    if (query) {
-                        allFacilities.forEach(facility => {
-                            if (facility.name.toLowerCase().includes(query)) {
-                                const li = document.createElement("li");
-                                li.textContent = facility.name;
-                                li.style.cursor = "pointer";
-                                li.onclick = function () {
-                                    map.setView(facility.latlng, 15);
-                                    facility.marker.openPopup();
-                                    searchResults.innerHTML = ""; // Clear results
-                                };
-                                searchResults.appendChild(li);
-                            }
-                        });
-                    }
-                });
-
-                // Classification tool
-                document.getElementById("filter-btn").addEventListener("click", () => {
-                    var filterType = prompt("Choose hospital type: Public or Private");
-                    if (filterType === "Public" || filterType === "Private") {
-                        markers.forEach(marker => map.removeLayer(marker));
-                        markers = [];
-                        allFacilities.forEach(facility => {
-                            if (facility.type === filterType) {
-                                const color = filterType === "Public" ? "green" : "blue";
-                                const emoji = facility.category === "hospital" ? "🏥" : "🩺";
-                                const iconHtml = `<span style="color:${color}; font-size: 24px;">${emoji}</span>`;
-                                const marker = L.divIcon({
-                                    className: '',
-                                    html: `<div style="text-align: center;">${iconHtml}</div>`,
-                                    iconSize: [30, 30],
-                                    iconAnchor: [15, 15]
-                                });
-
-                                const newMarker = L.marker(facility.latlng, { icon: marker })
-                                    .bindPopup(`<b>${facility.name}</b><br>Type: ${facility.type}<br>Category: ${facility.category}`)
-                                    .addTo(map);
-
-                                markers.push(newMarker);
-                            }
-                        });
-                    } else {
-                        alert("Please choose a valid type: Public or Private");
                     }
                 });
             })
@@ -170,7 +117,7 @@
             var div = L.DomUtil.create('div', 'legend');
             div.innerHTML += '<span style="color: green;">🏥</span> Public Hospital<br>';
             div.innerHTML += '<span style="color: blue;">🏥</span> Private Hospital<br>';
-            div.innerHTML += '<span style="color: gray;">🩺</span> Health Center<br>';
+            div.innerHTML += '<span>🩺</span> Health Center<br>';
             div.innerHTML += '<i style="background: cyan; border: 1px solid blue; display: inline-block; width: 20px; height: 20px;"></i> Ramallah District';
             return div;
         };
@@ -178,4 +125,3 @@
     </script>
 </body>
 </html>
-
