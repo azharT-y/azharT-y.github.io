@@ -38,10 +38,17 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // أيقونة المستشفيات الجديدة
+        // أيقونات المستشفيات والمراكز الصحية
         var hospitalIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2329/2329149.png', // رابط الأيقونة الحمراء مع القلب
-            iconSize: [40, 40], // حجم الأيقونة
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2329/2329149.png', // أيقونة المستشفى الحمراء
+            iconSize: [40, 40],
+            iconAnchor: [20, 40],
+            popupAnchor: [0, -40]
+        });
+
+        var healthCenterIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2947/2947746.png', // أيقونة المركز الصحي الصفراء
+            iconSize: [40, 40],
             iconAnchor: [20, 40],
             popupAnchor: [0, -40]
         });
@@ -56,27 +63,27 @@
             })
             .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
 
-        // بيانات المستشفيات
-        var hospitals = [
-            { name: "مجمع فلسطين الطبي", coordinates: [31.9063, 35.2124] },
-            { name: "مستشفى الرعاية التخصصي", coordinates: [31.9044, 35.2094] },
-            { name: "مستشفى د. درغام", coordinates: [31.9084, 35.2064] },
-            { name: "مستشفى المستقبل", coordinates: [31.9124, 35.2214] },
-            { name: "المركز الصحي العربي", coordinates: [31.9124, 35.2264] },
-            { name: "مستشفى الهلال الأحمر", coordinates: [31.9014, 35.2134] },
-            { name: "مستشفى الناصر للولادة", coordinates: [31.9044, 35.2144] },
-            { name: "مستشفى الرازي", coordinates: [31.9034, 35.2174] },
-            { name: "مستشفى مسلم التخصصي", coordinates: [31.9024, 35.2164] },
-            { name: "مركز الراجحي الطبي", coordinates: [31.9014, 35.2184] },
-            { name: "مستشفى الهلال الأحمر", coordinates: [31.9034, 35.2194] },
-            { name: "مستشفى خالد", coordinates: [31.9024, 35.2214] },
-            { name: "مستشفى أبو ريّا للتأهيل", coordinates: [31.9054, 35.2204] }
+        // بيانات المستشفيات والمراكز الصحية
+        var facilities = [
+            { name: "مجمع فلسطين الطبي", coordinates: [31.9063, 35.2124], type: "hospital" },
+            { name: "مستشفى الرعاية التخصصي", coordinates: [31.9044, 35.2094], type: "hospital" },
+            { name: "مستشفى د. درغام", coordinates: [31.9084, 35.2064], type: "hospital" },
+            { name: "مستشفى المستقبل", coordinates: [31.9124, 35.2214], type: "hospital" },
+            { name: "المركز الصحي العربي", coordinates: [31.9124, 35.2264], type: "health_center" },
+            { name: "مستشفى الهلال الأحمر", coordinates: [31.9014, 35.2134], type: "hospital" },
+            { name: "مستشفى الناصر للولادة", coordinates: [31.9044, 35.2144], type: "hospital" },
+            { name: "مستشفى الرازي", coordinates: [31.9034, 35.2174], type: "hospital" },
+            { name: "مستشفى مسلم التخصصي", coordinates: [31.9024, 35.2164], type: "hospital" },
+            { name: "مركز الراجحي الطبي", coordinates: [31.9014, 35.2184], type: "health_center" },
+            { name: "مستشفى خالد", coordinates: [31.9024, 35.2214], type: "hospital" },
+            { name: "مستشفى أبو ريّا للتأهيل", coordinates: [31.9054, 35.2204], type: "hospital" }
         ];
 
-        // عرض المستشفيات على الخريطة
-        hospitals.forEach(hospital => {
-            L.marker(hospital.coordinates, { icon: hospitalIcon })
-                .bindPopup(`<b>${hospital.name}</b>`)
+        // عرض المستشفيات والمراكز الصحية على الخريطة
+        facilities.forEach(facility => {
+            var icon = facility.type === "hospital" ? hospitalIcon : healthCenterIcon;
+            L.marker(facility.coordinates, { icon: icon })
+                .bindPopup(`<b>${facility.name}</b>`)
                 .addTo(map);
         });
 
@@ -85,6 +92,7 @@
         legend.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'legend');
             div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/2329/2329149.png);"></i> مستشفى<br>';
+            div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/2947/2947746.png);"></i> مركز صحي<br>';
             div.innerHTML += '<i style="background: cyan; border: 1px solid blue; display: inline-block; width: 20px; height: 20px;"></i> محافظة رام الله';
             return div;
         };
@@ -92,4 +100,3 @@
     </script>
 </body>
 </html>
-https://cdn-icons-png.flaticon.com/512/2329/2329149.png
