@@ -20,15 +20,15 @@
             z-index: 1000;
         }
         .legend {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
             background: white;
             padding: 10px;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
             font-size: 14px;
             line-height: 1.8em;
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
             z-index: 1000;
         }
     </style>
@@ -99,7 +99,7 @@
                             .bindPopup(popupContent)
                             .addTo(hospitalsLayer);
 
-                        markers.push({ name: nameAr, marker: facilityMarker, type, category });
+                        markers.push({ name: nameAr, marker: facilityMarker });
                         return facilityMarker;
                     }
                 }).addTo(map);
