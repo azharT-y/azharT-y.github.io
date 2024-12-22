@@ -6,10 +6,17 @@
     <title>خريطة المستشفيات والمراكز الصحية</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
     <style>
         body, html { margin: 0; padding: 0; height: 100%; }
         #map { width: 100%; height: 100vh; }
+        .legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            font-size: 14px;
+            line-height: 1.8em;
+        }
         .control-btn {
             position: absolute;
             top: 10px;
@@ -22,22 +29,26 @@
             cursor: pointer;
             z-index: 1000;
         }
-        .legend {
+        .search-container {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            z-index: 1000;
             background: white;
             padding: 10px;
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-            font-size: 14px;
-            line-height: 1.8em;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
     <div class="control-btn" id="filter-btn">تصنيف المستشفيات</div>
+    <div class="search-container">
+        <input type="text" id="search-input" placeholder="ابحث عن مستشفى أو مركز صحي" style="width: 200px; padding: 5px; border: 1px solid #ccc; border-radius: 5px;" />
+    </div>
 
     <script>
-        // إعداد الخريطة
         var map = L.map('map').setView([31.9, 35.2], 12);
 
         // إضافة طبقة OpenStreetMap
@@ -55,14 +66,13 @@
             })
             .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
 
-        var allMarkers = [];
         var facilitiesLayer;
+        var allFacilities = [];
 
         // تحميل المستشفيات والمراكز الصحية
         fetch('Hospitals.geojson')
             .then(response => response.json())
             .then(data => {
-                // إضافة الطبقة التفاعلية لجميع المنشآت
                 facilitiesLayer = L.geoJSON(data, {
                     pointToLayer: function (feature, latlng) {
                         var type = feature.properties.type; // عام أو خاص
@@ -78,31 +88,22 @@
                             iconAnchor: [15, 15]
                         });
 
-                        return L.marker(latlng, { icon: marker })
-                            .bindPopup(`<b>${feature.properties.name}</b><br>نوع: ${type}<br>فئة: ${category}`);
+                        var facilityMarker = L.marker(latlng, { icon: marker })
+                            .bindPopup(`<b>${feature.properties.name}</b><br>نوع: ${type}<br>فئة: ${category}`)
+                            .addTo(map);
+
+                        allFacilities.push({ name: feature.properties.name, marker: facilityMarker });
+                        return facilityMarker;
                     }
                 }).addTo(map);
 
-                allMarkers.push(facilitiesLayer);
-
                 // إضافة أداة البحث
-                var searchControl = L.control({ position: 'topright' });
-                searchControl.onAdd = function () {
-                    var div = L.DomUtil.create('div', 'search-control');
-                    div.innerHTML = `
-                        <input type="text" id="search-input" placeholder="ابحث عن مستشفى أو مركز صحي" style="width: 200px; padding: 5px; border: 1px solid #ccc; border-radius: 5px;" />
-                    `;
-                    return div;
-                };
-                searchControl.addTo(map);
-
                 document.getElementById("search-input").addEventListener("input", function (e) {
                     var query = e.target.value.toLowerCase();
-                    facilitiesLayer.eachLayer(function (layer) {
-                        var name = layer.feature.properties.name.toLowerCase();
-                        if (name.includes(query)) {
-                            map.setView(layer.getLatLng(), 15);
-                            layer.openPopup();
+                    allFacilities.forEach(facility => {
+                        if (facility.name.toLowerCase().includes(query)) {
+                            map.setView(facility.marker.getLatLng(), 15);
+                            facility.marker.openPopup();
                         }
                     });
                 });
@@ -138,18 +139,6 @@
                 });
             })
             .catch(error => console.error("خطأ في تحميل ملف Hospitals.geojson:", error));
-
-        // إضافة مفتاح الخريطة (Legend)
-        var legend = L.control({ position: 'bottomright' });
-        legend.onAdd = function (map) {
-            var div = L.DomUtil.create('div', 'legend');
-            div.innerHTML += '<span style="color: green;">🏥</span> مستشفى عام<br>';
-            div.innerHTML += '<span style="color: blue;">🏥</span> مستشفى خاص<br>';
-            div.innerHTML += '<span>🩺</span> مركز صحي<br>';
-            div.innerHTML += '<i style="background: cyan; border: 1px solid blue; display: inline-block; width: 20px; height: 20px;"></i> محافظة رام الله';
-            return div;
-        };
-        legend.addTo(map);
     </script>
 </body>
 </html>
