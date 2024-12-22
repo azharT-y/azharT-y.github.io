@@ -1,64 +1,11 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خريطة المستشفيات والمراكز الصحية</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
-        body, html { margin: 0; padding: 0; height: 100%; }
-        #map { width: 100%; height: 100vh; }
-    </style>
-</head>
-<body>
-    <div id="map"></div>
-
-    <script>
-        var map = L.map('map').setView([31.9, 35.2], 12);
-
-        // طبقة OpenStreetMap
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
-
-        // أيقونات المستشفيات والمراكز الصحية
-        var hospitalIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2329/2329149.png', // رابط الأيقونة التي أرسلتها
-            iconSize: [40, 40], // حجم الأيقونة
-            iconAnchor: [20, 40], // نقطة التثبيت
-            popupAnchor: [0, -40] // موضع النافذة المنبثقة
-        });
-
-        // تحميل المستشفيات والمراكز الصحية
-        fetch('Hospitals.geojson')
-            .then(response => response.json())
-            .then(data => {
-                var hospitalsLayer = L.geoJSON(data, {
-                    pointToLayer: function (feature, latlng) {
-                        // استخدام الأيقونة المحددة لكل مستشفى
-                        return L.marker(latlng, { icon: hospitalIcon })
-                            .bindPopup(`<b>${feature.properties.name || "اسم غير متوفر"}</b>`); // عرض اسم المستشفى
-                    }
-                }).addTo(map);
-
-                // ضبط حدود الخريطة لتناسب المواقع
-                map.fitBounds(hospitalsLayer.getBounds());
-            })
-            .catch(error => console.error("خطأ في تحميل ملف Hospitals.geojson:", error));
-    </script>
-</body>
-</html>
-iconSize: [40, 40]
-map.fitBounds(hospitalsLayer.getBounds());
-
 {
     "type": "FeatureCollection",
     "features": [
         {
             "type": "Feature",
             "properties": {
-                "name": "مستشفى رام الله"
+                "name": "مستشفى رام الله",
+                "type": "hospital"
             },
             "geometry": {
                 "type": "Point",
@@ -68,7 +15,8 @@ map.fitBounds(hospitalsLayer.getBounds());
         {
             "type": "Feature",
             "properties": {
-                "name": "مستشفى البيرة"
+                "name": "مركز صحي البيرة",
+                "type": "health_center"
             },
             "geometry": {
                 "type": "Point",
@@ -77,3 +25,4 @@ map.fitBounds(hospitalsLayer.getBounds());
         }
     ]
 }
+
