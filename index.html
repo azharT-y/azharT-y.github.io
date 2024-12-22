@@ -84,7 +84,7 @@
                         // محتوى النوافذ المنبثقة (Popup)
                         var popupContent = `<b>${nameAr}</b><br>المدينة: ${city}`;
                         if (type === "hospital" && category) {
-                            popupContent += `<br><small>التصنيف: ${category === "خاص" ? "خاص" : "عام"}</small>`;
+                            popupContent += `<br><small>التصنيف: ${category}</small>`;
                         }
 
                         var facilityMarker = L.marker(latlng, { icon: marker })
