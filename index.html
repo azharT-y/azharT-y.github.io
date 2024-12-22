@@ -65,41 +65,49 @@
             })
             .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
 
-        // منشآت المستشفيات والمراكز الصحية
-        var facilities = [
-            { name_ar: "مجمع فلسطين الطبي", name_en: "Palestine Medical Complex", city: "رام الله", type: "Public", coordinates: [31.8988, 35.2048] },
-            { name_ar: "مستشفى الرعاية التخصصي", name_en: "Care Specialist Hospital", city: "رام الله", type: "Private", coordinates: [31.9054, 35.2051] },
-            { name_ar: "مستشفى دكتور ضرغام", name_en: "Dr.Dergham Hospital", city: "رام الله", type: "Private", coordinates: [31.8977, 35.2044] },
-            { name_ar: "مستشفى المستقبل", name_en: "Al Mustakbal Hospital", city: "البيرة", type: "Public", coordinates: [31.9144, 35.2141] },
-            { name_ar: "المركز الصحي العربي", name_en: "Arabic Health Center", city: "البيرة", type: "Public", coordinates: [31.9046, 35.2065] },
-            { name_ar: "مستشفى العمري", name_en: "Al Amari Health Center", city: "البيرة", type: "Private", coordinates: [31.8946, 35.2107] },
-            { name_ar: "المستشفى الاستشاري العربي", name_en: "Istishari Arab Hospital", city: "رام الله", type: "Private", coordinates: [31.9335, 35.1623] },
-            { name_ar: "مركز الراجحي الطبي", name_en: "Al Rajhi Medical Center", city: "البيرة", type: "Private", coordinates: [31.8914, 35.2135] },
-            { name_ar: "مستشفى الرازي", name_en: "Al Razi Hospital", city: "رام الله", type: "Private", coordinates: [31.9034, 35.2174] },
-            { name_ar: "مستشفى الهلال الأحمر", name_en: "Palestinian Red Crescent Hospital", city: "رام الله", type: "Public", coordinates: [31.8994, 35.2044] },
-            { name_ar: "مستشفى الناصر", name_en: "Nasser Maternity Hospital", city: "رام الله", type: "Private", coordinates: [31.9024, 35.2164] },
-            { name_ar: "مستشفى خالد", name_en: "Khalid Hospital", city: "البيرة", type: "Public", coordinates: [31.9021, 35.2141] },
-            { name_ar: "مستشفى أبو ريّا", name_en: "Abu Reya Rehabilitation Hospital", city: "رام الله", type: "Public", coordinates: [31.9064, 35.2114] },
-            { name_ar: "مستشفى المستقبل", name_en: "Future Hospital", city: "البيرة", type: "Private", coordinates: [31.9123, 35.2156] },
-            { name_ar: "مركز بيتونيا الطبي", name_en: "Beitunia Medical Center", city: "بيتونا", type: "Public", coordinates: [31.8823, 35.1764] },
-            { name_ar: "مستشفى مسلم", name_en: "Muslim Hospital", city: "البيرة", type: "Private", coordinates: [31.8995, 35.2143] }
-        ];
+        // تحميل بيانات المستشفيات والمراكز الصحية
+        fetch('Hospitals.geojson')
+            .then(response => response.json())
+            .then(data => {
+                var markers = [];
+                L.geoJSON(data, {
+                    pointToLayer: function (feature, latlng) {
+                        // استخدم البيانات من الملف
+                        var nameAr = feature.properties.BUSNIESS_N || "اسم غير متوفر";
+                        var nameEn = feature.properties.BUSNIESS_1 || "Name not available";
+                        var type = feature.properties.TYPE || "نوع غير محدد";
+                        var category = type === "Public" ? "عام" : "خاص";
+                        var color = category === "عام" ? "green" : "blue";
+                        var emoji = feature.properties.TYPE === "health_center" ? "🩺" : "🏥";
 
-        // عرض المستشفيات والمراكز الصحية باستخدام الرموز التعبيرية
-        facilities.forEach(facility => {
-            var color = facility.type === "Public" ? "green" : "blue";
-            var emoji = "🏥";
-            var marker = L.divIcon({
-                className: '',
-                html: `<div style="font-size: 24px; text-align: center; color:${color};">${emoji}</div>`,
-                iconSize: [30, 30],
-                iconAnchor: [15, 15]
-            });
+                        var marker = L.divIcon({
+                            className: '',
+                            html: `<div style="font-size: 24px; text-align: center; color:${color};">${emoji}</div>`,
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 15]
+                        });
 
-            L.marker(facility.coordinates, { icon: marker })
-                .bindPopup(`<b>${facility.name_ar}</b><br>${facility.name_en}<br>المدينة: ${facility.city}<br>التصنيف: ${facility.type === "Public" ? "عام" : "خاص"}`)
-                .addTo(map);
-        });
+                        var facilityMarker = L.marker(latlng, { icon: marker })
+                            .bindPopup(`<b>${nameAr}</b><br>${nameEn}<br>النوع: ${type}<br>التصنيف: ${category}`)
+                            .addTo(map);
+
+                        markers.push({ name: nameAr, marker: facilityMarker });
+                    }
+                });
+
+                // أداة البحث
+                const searchInput = document.getElementById("search-input");
+                searchInput.addEventListener("input", function () {
+                    const query = searchInput.value.toLowerCase();
+                    markers.forEach(facility => {
+                        if (facility.name.toLowerCase().includes(query)) {
+                            facility.marker.openPopup();
+                            map.setView(facility.marker.getLatLng(), 15);
+                        }
+                    });
+                });
+            })
+            .catch(error => console.error("خطأ في تحميل ملف Hospitals.geojson:", error));
 
         // إضافة مفتاح الخريطة (Legend)
         var legend = L.control({ position: 'bottomright' });
@@ -107,6 +115,7 @@
             var div = L.DomUtil.create('div', 'legend');
             div.innerHTML += '<span style="color: green;">🏥</span> مستشفى عام<br>';
             div.innerHTML += '<span style="color: blue;">🏥</span> مستشفى خاص<br>';
+            div.innerHTML += '<span style="color: red;">🩺</span> مركز صحي<br>';
             div.innerHTML += '<i style="background: cyan; border: 1px solid blue; display: inline-block; width: 20px; height: 20px;"></i> محافظة رام الله';
             return div;
         };
