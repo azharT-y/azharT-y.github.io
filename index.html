@@ -66,13 +66,12 @@
             .then(data => {
                 L.geoJSON(data, {
                     pointToLayer: function (feature, latlng) {
-                        // استخراج البيانات من الخصائص
                         var nameAr = feature.properties.BUSNIESS_N || "اسم غير متوفر";
                         var city = feature.properties.CITY || "مدينة غير معروفة";
                         var type = feature.properties.TYPE || "hospital";
                         var category = feature.properties.CATEGORY || "غير معروف";
 
-                        // اختيار الرموز التعبيرية
+                        // تحديد الرموز التعبيرية
                         var emoji = type === "hospital" ? "🏥" : "🩺";
 
                         var marker = L.divIcon({
@@ -82,7 +81,7 @@
                             iconAnchor: [15, 15]
                         });
 
-                        // إعداد النص المنبثق (Popup)
+                        // محتوى النوافذ المنبثقة (Popup)
                         var popupContent = `<b>${nameAr}</b><br>المدينة: ${city}`;
                         if (type === "hospital") {
                             popupContent += `<br>التصنيف: ${category}`;
@@ -97,7 +96,7 @@
                     }
                 }).addTo(map);
 
-                // البحث
+                // إعداد أداة البحث
                 const searchInput = document.getElementById("search-input");
                 searchInput.addEventListener("input", function () {
                     const query = searchInput.value.toLowerCase();
@@ -113,7 +112,7 @@
             })
             .catch(error => console.error("خطأ في تحميل ملف Hospitals.geojson:", error));
 
-        // إضافة مفتاح الخريطة (Legend)
+        // إعداد مفتاح الخريطة (Legend)
         var legend = L.control({ position: 'bottomright' });
         legend.onAdd = function () {
             var div = L.DomUtil.create('div', 'legend');
@@ -126,4 +125,3 @@
     </script>
 </body>
 </html>
-
