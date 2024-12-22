@@ -26,6 +26,10 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
             font-size: 14px;
             line-height: 1.8em;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 1000;
         }
         .legend span {
             display: inline-block;
@@ -82,7 +86,7 @@
         // عرض المستشفيات والمراكز الصحية باستخدام الرموز التعبيرية
         var markers = [];
         facilities.forEach(facility => {
-            var color = facility.category === "Public" ? "green" : "blue";
+            var color = facility.category === "Public" ? "green" : (facility.type === "health_center" ? "red" : "blue");
             var emoji = facility.type === "hospital" ? "🏥" : "🩺";
             var marker = L.divIcon({
                 className: '',
