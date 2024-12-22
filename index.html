@@ -45,7 +45,6 @@
     <div id="map"></div>
     <div class="search-container">
         <input type="text" id="search-input" placeholder="ابحث عن مستشفى أو مركز صحي" style="width: 200px; padding: 5px; border: 1px solid #ccc; border-radius: 5px;" />
-        <ul id="search-results" style="list-style: none; padding: 0; margin: 0;"></ul>
     </div>
 
     <script>
@@ -66,22 +65,30 @@
             })
             .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
 
-        // بيانات المستشفيات والمراكز الصحية
+        // منشآت المستشفيات والمراكز الصحية
         var facilities = [
-            // البيانات المستخلصة من ملف Hospitals.geojson
-            { name_ar: "مجمع فلسطين الطبي", name_en: "Palestine Medical Complex", city: "رام الله", type: "Public", coordinates: [31.898848178094777, 35.20481107919121] },
-            { name_ar: "مستشفى الرعاية التخصصي", name_en: "Care Specialist Hospital", city: "رام الله", type: "Private", coordinates: [31.9053793926002, 35.20507828425434] },
-            { name_ar: "مستشفى دكتور ضرغام", name_en: "Dr.Dergham Hospital", city: "رام الله", type: "Private", coordinates: [31.897747383972042, 35.2044283261662] },
-            { name_ar: "مستشفى المستقبل", name_en: "Al Mustakbal Hospital", city: "البيرة", type: "Public", coordinates: [31.914433044313196, 35.214167418863404] },
-            { name_ar: "المركز الصحي العربي", name_en: "Arabic Health Center", city: "البيرة", type: "Public", coordinates: [31.90463383996682, 35.206537250841556] },
-            { name_ar: "مستشفى العمري", name_en: "Al Amari Health Center", city: "البيرة", type: "Private", coordinates: [31.89462854715951, 35.21077269461349] },
-            { name_ar: "المستشفى الاستشاري العربي", name_en: "Istishari Arab Hospital", city: "رام الله", type: "Private", coordinates: [31.933553067680933, 35.16231420361561] },
+            { name_ar: "مجمع فلسطين الطبي", name_en: "Palestine Medical Complex", city: "رام الله", type: "Public", coordinates: [31.8988, 35.2048] },
+            { name_ar: "مستشفى الرعاية التخصصي", name_en: "Care Specialist Hospital", city: "رام الله", type: "Private", coordinates: [31.9054, 35.2051] },
+            { name_ar: "مستشفى دكتور ضرغام", name_en: "Dr.Dergham Hospital", city: "رام الله", type: "Private", coordinates: [31.8977, 35.2044] },
+            { name_ar: "مستشفى المستقبل", name_en: "Al Mustakbal Hospital", city: "البيرة", type: "Public", coordinates: [31.9144, 35.2141] },
+            { name_ar: "المركز الصحي العربي", name_en: "Arabic Health Center", city: "البيرة", type: "Public", coordinates: [31.9046, 35.2065] },
+            { name_ar: "مستشفى العمري", name_en: "Al Amari Health Center", city: "البيرة", type: "Private", coordinates: [31.8946, 35.2107] },
+            { name_ar: "المستشفى الاستشاري العربي", name_en: "Istishari Arab Hospital", city: "رام الله", type: "Private", coordinates: [31.9335, 35.1623] },
+            { name_ar: "مركز الراجحي الطبي", name_en: "Al Rajhi Medical Center", city: "البيرة", type: "Private", coordinates: [31.8914, 35.2135] },
+            { name_ar: "مستشفى الرازي", name_en: "Al Razi Hospital", city: "رام الله", type: "Private", coordinates: [31.9034, 35.2174] },
+            { name_ar: "مستشفى الهلال الأحمر", name_en: "Palestinian Red Crescent Hospital", city: "رام الله", type: "Public", coordinates: [31.8994, 35.2044] },
+            { name_ar: "مستشفى الناصر", name_en: "Nasser Maternity Hospital", city: "رام الله", type: "Private", coordinates: [31.9024, 35.2164] },
+            { name_ar: "مستشفى خالد", name_en: "Khalid Hospital", city: "البيرة", type: "Public", coordinates: [31.9021, 35.2141] },
+            { name_ar: "مستشفى أبو ريّا", name_en: "Abu Reya Rehabilitation Hospital", city: "رام الله", type: "Public", coordinates: [31.9064, 35.2114] },
+            { name_ar: "مستشفى المستقبل", name_en: "Future Hospital", city: "البيرة", type: "Private", coordinates: [31.9123, 35.2156] },
+            { name_ar: "مركز بيتونيا الطبي", name_en: "Beitunia Medical Center", city: "بيتونا", type: "Public", coordinates: [31.8823, 35.1764] },
+            { name_ar: "مستشفى مسلم", name_en: "Muslim Hospital", city: "البيرة", type: "Private", coordinates: [31.8995, 35.2143] }
         ];
 
         // عرض المستشفيات والمراكز الصحية باستخدام الرموز التعبيرية
         facilities.forEach(facility => {
             var color = facility.type === "Public" ? "green" : "blue";
-            var emoji = facility.type === "health_center" ? "🩺" : "🏥";
+            var emoji = "🏥";
             var marker = L.divIcon({
                 className: '',
                 html: `<div style="font-size: 24px; text-align: center; color:${color};">${emoji}</div>`,
@@ -100,7 +107,6 @@
             var div = L.DomUtil.create('div', 'legend');
             div.innerHTML += '<span style="color: green;">🏥</span> مستشفى عام<br>';
             div.innerHTML += '<span style="color: blue;">🏥</span> مستشفى خاص<br>';
-            div.innerHTML += '<span style="color: red;">🩺</span> مركز صحي<br>';
             div.innerHTML += '<i style="background: cyan; border: 1px solid blue; display: inline-block; width: 20px; height: 20px;"></i> محافظة رام الله';
             return div;
         };
