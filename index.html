@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خريطة المستشفيات والمراكز الصحية</title>
+    <title>خريطة المستشفيات ومحافظة رام الله</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-search@3.0.0/dist/leaflet-search.min.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-search@3.0.0/dist/leaflet-search.min.js"></script>
     <style>
         body, html { margin: 0; padding: 0; height: 100%; }
         #map { width: 100%; height: 100vh; }
@@ -15,14 +17,13 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
             line-height: 1.8em;
-            font-size: 14px;
         }
         .legend i {
             width: 20px;
             height: 20px;
-            float: left;
+            display: inline-block;
             margin-right: 8px;
-            opacity: 0.7;
+            background-size: cover;
         }
     </style>
 </head>
@@ -30,7 +31,6 @@
     <div id="map"></div>
 
     <script>
-        // إعداد الخريطة
         var map = L.map('map').setView([31.9, 35.2], 12);
 
         // طبقة OpenStreetMap
@@ -38,56 +38,57 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // أيقونات المستشفيات والمراكز الصحية
+        // أيقونة المستشفيات
         var hospitalIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2329/2329149.png', // أيقونة المستشفى
-            iconSize: [40, 40],
-            iconAnchor: [20, 40],
-            popupAnchor: [0, -40]
-        });
-
-        var healthCenterIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/3649/3649463.png', // أيقونة المركز الصحي
-            iconSize: [40, 40],
-            iconAnchor: [20, 40],
-            popupAnchor: [0, -40]
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2329/2329149.png',
+            iconSize: [30, 30]
         });
 
         // تحميل مضلع محافظة رام الله
-        fetch('RamallahZones.json') // تأكد من وجود الملف في نفس المجلد
+        fetch('RamallahZones.json')
             .then(response => response.json())
             .then(data => {
                 L.geoJSON(data, {
-                    style: { color: "blue", weight: 2, fillColor: "cyan", fillOpacity: 0.3 }
+                    style: { color: "blue", weight: 2, fillColor: "transparent", fillOpacity: 0 }
                 }).bindPopup("محافظة رام الله").addTo(map);
+                console.log("تم تحميل ملف RamallahZones.json بنجاح");
             })
             .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
 
-        // تحميل المستشفيات والمراكز الصحية
-        fetch('Hospitals.geojson') // تأكد من وجود الملف في نفس المجلد
+        // تحميل المستشفيات والتأكد من ظهورها فوق الخريطة
+        var hospitalsLayer = L.layerGroup();
+        fetch('Hospitals.geojson')
             .then(response => response.json())
             .then(data => {
-                var hospitalsLayer = L.geoJSON(data, {
+                var hospitals = L.geoJSON(data, {
                     pointToLayer: function (feature, latlng) {
-                        // اختر الأيقونة بناءً على النوع
-                        var icon = feature.properties.type === 'hospital' ? hospitalIcon : healthCenterIcon;
-                        return L.marker(latlng, { icon: icon })
-                            .bindPopup(`<b>${feature.properties.name || "اسم غير متوفر"}</b>`); // عرض اسم المستشفى أو المركز الصحي
+                        return L.marker(latlng, { icon: hospitalIcon })
+                            .bindPopup(`<b>${feature.properties.name || "مستشفى غير معروف"}</b>`);
                     }
-                }).addTo(map);
+                });
+                hospitalsLayer.addLayer(hospitals);
+                map.addLayer(hospitalsLayer);
+                console.log("تم تحميل ملف Hospitals.geojson بنجاح");
 
-                // ضبط حدود الخريطة لتناسب المواقع
-                map.fitBounds(hospitalsLayer.getBounds());
+                // إضافة أداة البحث
+                var searchControl = new L.Control.Search({
+                    layer: hospitalsLayer,
+                    propertyName: 'name',
+                    marker: false,
+                    moveToLocation: function (latlng, title, map) {
+                        map.setView(latlng, 14);
+                    }
+                });
+                searchControl.addTo(map);
             })
-            .catch(error => console.error("خطأ في تحميل ملف Hospitals.geojson:", error));
+            .catch(error => console.error("خطأ في تحميل ملف المستشفيات:", error));
 
-        // إضافة مفتاح الخريطة (Legend)
-        var legend = L.control({ position: 'bottomright' });
-        legend.onAdd = function (map) {
+        // إضافة مفتاح الخريطة
+        var legend = L.control({ position: 'bottomleft' });
+        legend.onAdd = function () {
             var div = L.DomUtil.create('div', 'legend');
-            div.innerHTML += '<i style="background: url(https://cdn-icons-png.flaticon.com/512/2329/2329149.png); background-size: contain;"></i> مستشفى<br>';
-            div.innerHTML += '<i style="background: url(https://cdn-icons-png.flaticon.com/512/3649/3649463.png); background-size: contain;"></i> مركز صحي<br>';
-            div.innerHTML += '<i style="background: cyan; width: 20px; height: 20px; display: inline-block; margin-right: 8px;"></i> محافظة رام الله';
+            div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/2329/2329149.png);"></i> مستشفى<br>';
+            div.innerHTML += '<i style="background: transparent; border: 1px solid blue;"></i> محافظة رام الله';
             return div;
         };
         legend.addTo(map);
