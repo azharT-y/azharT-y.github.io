@@ -44,14 +44,16 @@
             iconSize: [30, 30]
         });
 
-        // تحميل مضلع محافظة رام الله مع اللون الشفاف
+        // تحميل مضلع محافظة رام الله
         fetch('RamallahZones.json')
             .then(response => response.json())
             .then(data => {
                 L.geoJSON(data, {
                     style: { color: "blue", weight: 2, fillColor: "transparent", fillOpacity: 0 }
                 }).bindPopup("محافظة رام الله").addTo(map);
-            });
+                console.log("تم تحميل ملف RamallahZones.json بنجاح");
+            })
+            .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
 
         // تحميل المستشفيات والتأكد من ظهورها فوق الخريطة
         var hospitalsLayer = L.layerGroup();
@@ -66,6 +68,7 @@
                 });
                 hospitalsLayer.addLayer(hospitals);
                 map.addLayer(hospitalsLayer);
+                console.log("تم تحميل ملف Hospitals.geojson بنجاح");
 
                 // إضافة أداة البحث
                 var searchControl = new L.Control.Search({
@@ -92,4 +95,3 @@
     </script>
 </body>
 </html>
-style: { color: "blue", weight: 2, fillColor: "transparent", fillOpacity: 0 }
