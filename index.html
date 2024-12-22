@@ -15,52 +15,65 @@
     <div id="map"></div>
 
     <script>
-        // إنشاء الخريطة
         var map = L.map('map').setView([31.9, 35.2], 12);
 
-        // إضافة طبقة OpenStreetMap
+        // طبقة OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // تعريف الأيقونات
+        // أيقونات المستشفيات والمراكز الصحية
         var hospitalIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2329/2329149.png', // أيقونة المستشفى (حمراء)
-            iconSize: [40, 40], // حجم الأيقونة
-            iconAnchor: [20, 40], // نقطة التثبيت
-            popupAnchor: [0, -40] // موضع النافذة المنبثقة
-        });
-
-        var healthCenterIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/3649/3649463.png', // أيقونة المركز الصحي (صفراء)
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2329/2329149.png', // رابط الأيقونة التي أرسلتها
             iconSize: [40, 40], // حجم الأيقونة
             iconAnchor: [20, 40], // نقطة التثبيت
             popupAnchor: [0, -40] // موضع النافذة المنبثقة
         });
 
         // تحميل المستشفيات والمراكز الصحية
-        fetch('Hospitals.geojson') // تأكد من أن ملف Hospitals.geojson موجود في نفس المسار
+        fetch('Hospitals.geojson')
             .then(response => response.json())
             .then(data => {
-                // إضافة النقاط إلى الخريطة
                 var hospitalsLayer = L.geoJSON(data, {
                     pointToLayer: function (feature, latlng) {
-                        // تحديد الأيقونة بناءً على النوع (hospital أو health_center)
-                        var icon = feature.properties.type === 'hospital' ? hospitalIcon : healthCenterIcon;
-
-                        // إضافة العلامة إلى الخريطة مع النافذة المنبثقة
-                        return L.marker(latlng, { icon: icon })
-                            .bindPopup(`<b>${feature.properties.name || "اسم غير متوفر"}</b>`);
+                        // استخدام الأيقونة المحددة لكل مستشفى
+                        return L.marker(latlng, { icon: hospitalIcon })
+                            .bindPopup(`<b>${feature.properties.name || "اسم غير متوفر"}</b>`); // عرض اسم المستشفى
                     }
-                });
+                }).addTo(map);
 
-                // إضافة الطبقة إلى الخريطة
-                hospitalsLayer.addTo(map);
-
-                // ضبط عرض الخريطة لتشمل جميع النقاط
+                // ضبط حدود الخريطة لتناسب المواقع
                 map.fitBounds(hospitalsLayer.getBounds());
             })
             .catch(error => console.error("خطأ في تحميل ملف Hospitals.geojson:", error));
     </script>
 </body>
 </html>
+iconSize: [40, 40]
+map.fitBounds(hospitalsLayer.getBounds());
+
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "مستشفى رام الله"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [35.2, 31.9]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "مستشفى البيرة"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [35.215, 31.922]
+            }
+        }
+    ]
+}
