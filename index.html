@@ -49,7 +49,6 @@
     </div>
 
     <script>
-        // إعداد الخريطة
         var map = L.map('map').setView([31.9, 35.2], 12);
 
         // إضافة طبقة OpenStreetMap
@@ -69,25 +68,20 @@
 
         // بيانات المستشفيات والمراكز الصحية
         var facilities = [
-            { name: "مجمع فلسطين الطبي", coordinates: [31.9063, 35.2124], type: "hospital", category: "Public" },
-            { name: "مستشفى الرعاية التخصصي", coordinates: [31.9044, 35.2094], type: "hospital", category: "Private" },
-            { name: "مستشفى د. درغام", coordinates: [31.9084, 35.2064], type: "hospital", category: "Private" },
-            { name: "مستشفى المستقبل", coordinates: [31.9124, 35.2214], type: "hospital", category: "Public" },
-            { name: "المركز الصحي العربي", coordinates: [31.9124, 35.2264], type: "health_center", category: "Public" },
-            { name: "مستشفى الهلال الأحمر", coordinates: [31.9014, 35.2134], type: "hospital", category: "Public" },
-            { name: "مستشفى الناصر للولادة", coordinates: [31.9044, 35.2144], type: "hospital", category: "Private" },
-            { name: "مستشفى الرازي", coordinates: [31.9034, 35.2174], type: "hospital", category: "Private" },
-            { name: "مستشفى مسلم التخصصي", coordinates: [31.9024, 35.2164], type: "hospital", category: "Private" },
-            { name: "مركز الراجحي الطبي", coordinates: [31.9014, 35.2184], type: "health_center", category: "Private" },
-            { name: "مستشفى خالد", coordinates: [31.9024, 35.2214], type: "hospital", category: "Public" },
-            { name: "مستشفى أبو ريّا للتأهيل", coordinates: [31.9054, 35.2204], type: "hospital", category: "Public" }
+            // البيانات المستخلصة من ملف Hospitals.geojson
+            { name_ar: "مجمع فلسطين الطبي", name_en: "Palestine Medical Complex", city: "رام الله", type: "Public", coordinates: [31.898848178094777, 35.20481107919121] },
+            { name_ar: "مستشفى الرعاية التخصصي", name_en: "Care Specialist Hospital", city: "رام الله", type: "Private", coordinates: [31.9053793926002, 35.20507828425434] },
+            { name_ar: "مستشفى دكتور ضرغام", name_en: "Dr.Dergham Hospital", city: "رام الله", type: "Private", coordinates: [31.897747383972042, 35.2044283261662] },
+            { name_ar: "مستشفى المستقبل", name_en: "Al Mustakbal Hospital", city: "البيرة", type: "Public", coordinates: [31.914433044313196, 35.214167418863404] },
+            { name_ar: "المركز الصحي العربي", name_en: "Arabic Health Center", city: "البيرة", type: "Public", coordinates: [31.90463383996682, 35.206537250841556] },
+            { name_ar: "مستشفى العمري", name_en: "Al Amari Health Center", city: "البيرة", type: "Private", coordinates: [31.89462854715951, 35.21077269461349] },
+            { name_ar: "المستشفى الاستشاري العربي", name_en: "Istishari Arab Hospital", city: "رام الله", type: "Private", coordinates: [31.933553067680933, 35.16231420361561] },
         ];
 
         // عرض المستشفيات والمراكز الصحية باستخدام الرموز التعبيرية
-        var markers = [];
         facilities.forEach(facility => {
-            var color = facility.category === "Public" ? "green" : (facility.type === "health_center" ? "red" : "blue");
-            var emoji = facility.type === "hospital" ? "🏥" : "🩺";
+            var color = facility.type === "Public" ? "green" : "blue";
+            var emoji = facility.type === "health_center" ? "🩺" : "🏥";
             var marker = L.divIcon({
                 className: '',
                 html: `<div style="font-size: 24px; text-align: center; color:${color};">${emoji}</div>`,
@@ -95,23 +89,9 @@
                 iconAnchor: [15, 15]
             });
 
-            var facilityMarker = L.marker(facility.coordinates, { icon: marker })
-                .bindPopup(`<b>${facility.name}</b><br>نوع: ${facility.type === "hospital" ? "مستشفى" : "مركز صحي"}<br>التصنيف: ${facility.category === "Public" ? "عام" : "خاص"}`)
+            L.marker(facility.coordinates, { icon: marker })
+                .bindPopup(`<b>${facility.name_ar}</b><br>${facility.name_en}<br>المدينة: ${facility.city}<br>التصنيف: ${facility.type === "Public" ? "عام" : "خاص"}`)
                 .addTo(map);
-
-            markers.push({ name: facility.name, marker: facilityMarker });
-        });
-
-        // أداة البحث
-        const searchInput = document.getElementById("search-input");
-        searchInput.addEventListener("input", function () {
-            const query = searchInput.value.toLowerCase();
-            markers.forEach(facility => {
-                if (facility.name.toLowerCase().includes(query)) {
-                    facility.marker.openPopup();
-                    map.setView(facility.marker.getLatLng(), 15);
-                }
-            });
         });
 
         // إضافة مفتاح الخريطة (Legend)
