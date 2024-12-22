@@ -51,32 +51,33 @@
 
         // بيانات المستشفيات والمراكز الصحية
         var facilities = [
-            { name: "مجمع فلسطين الطبي", coordinates: [31.9063, 35.2124], type: "hospital" },
-            { name: "مستشفى الرعاية التخصصي", coordinates: [31.9044, 35.2094], type: "hospital" },
-            { name: "مستشفى د. درغام", coordinates: [31.9084, 35.2064], type: "hospital" },
-            { name: "مستشفى المستقبل", coordinates: [31.9124, 35.2214], type: "hospital" },
-            { name: "المركز الصحي العربي", coordinates: [31.9124, 35.2264], type: "health_center" },
-            { name: "مستشفى الهلال الأحمر", coordinates: [31.9014, 35.2134], type: "hospital" },
-            { name: "مستشفى الناصر للولادة", coordinates: [31.9044, 35.2144], type: "hospital" },
-            { name: "مستشفى الرازي", coordinates: [31.9034, 35.2174], type: "hospital" },
-            { name: "مستشفى مسلم التخصصي", coordinates: [31.9024, 35.2164], type: "hospital" },
-            { name: "مركز الراجحي الطبي", coordinates: [31.9014, 35.2184], type: "health_center" },
-            { name: "مستشفى خالد", coordinates: [31.9024, 35.2214], type: "hospital" },
-            { name: "مستشفى أبو ريّا للتأهيل", coordinates: [31.9054, 35.2204], type: "hospital" }
+            { name: "مجمع فلسطين الطبي", coordinates: [31.9063, 35.2124], type: "عام" },
+            { name: "مستشفى الرعاية التخصصي", coordinates: [31.9044, 35.2094], type: "خاص" },
+            { name: "مستشفى د. درغام", coordinates: [31.9084, 35.2064], type: "خاص" },
+            { name: "مستشفى المستقبل", coordinates: [31.9124, 35.2214], type: "خاص" },
+            { name: "المركز الصحي العربي", coordinates: [31.9124, 35.2264], type: "خاص" },
+            { name: "مستشفى الهلال الأحمر", coordinates: [31.9014, 35.2134], type: "عام" },
+            { name: "مستشفى الناصر للولادة", coordinates: [31.9044, 35.2144], type: "خاص" },
+            { name: "مستشفى الرازي", coordinates: [31.9034, 35.2174], type: "عام" },
+            { name: "مستشفى مسلم التخصصي", coordinates: [31.9024, 35.2164], type: "خاص" },
+            { name: "مركز الراجحي الطبي", coordinates: [31.9014, 35.2184], type: "خاص" },
+            { name: "مستشفى خالد", coordinates: [31.9024, 35.2214], type: "خاص" },
+            { name: "مستشفى أبو ريّا للتأهيل", coordinates: [31.9054, 35.2204], type: "عام" }
         ];
 
         // عرض المستشفيات والمراكز الصحية باستخدام الرموز التعبيرية
         facilities.forEach(facility => {
-            var emoji = facility.type === "hospital" ? "🏥" : "🩺";
+            var color = facility.type === "عام" ? "blue" : "red";
+            var emoji = `<span style="color:${color}; font-size: 24px;">🏥</span>`;
             var marker = L.divIcon({
                 className: '',
-                html: `<div style="font-size: 24px; text-align: center;">${emoji}</div>`,
+                html: `<div style="text-align: center;">${emoji}</div>`,
                 iconSize: [30, 30],
                 iconAnchor: [15, 15]
             });
 
             L.marker(facility.coordinates, { icon: marker })
-                .bindPopup(`<b>${facility.name}</b>`)
+                .bindPopup(`<b>${facility.name}</b><br>نوع المستشفى: ${facility.type}`)
                 .addTo(map);
         });
 
@@ -84,8 +85,8 @@
         var legend = L.control({ position: 'bottomright' });
         legend.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'legend');
-            div.innerHTML += '<span>🏥</span> مستشفى<br>';
-            div.innerHTML += '<span>🩺</span> مركز صحي<br>';
+            div.innerHTML += '<span style="color: blue;">🏥</span> مستشفى عام<br>';
+            div.innerHTML += '<span style="color: red;">🏥</span> مستشفى خاص<br>';
             div.innerHTML += '<i style="background: cyan; border: 1px solid blue; display: inline-block; width: 20px; height: 20px;"></i> محافظة رام الله';
             return div;
         };
@@ -93,27 +94,3 @@
     </script>
 </body>
 </html>
-{
-    "type": "FeatureCollection",
-    "features": [
-        {
-            "type": "Feature",
-            "geometry": {
-                "type": "Polygon",
-                "coordinates": [[[35.2121, 31.9071], [35.2221, 31.9071], [35.2221, 31.9171], [35.2121, 31.9171], [35.2121, 31.9071]]]
-            },
-            "properties": {
-                "name": "محافظة رام الله"
-            }
-        }
-    ]
-}
-fetch('RamallahZones.json')
-    .then(response => response.json())
-    .then(data => {
-        L.geoJSON(data, {
-            style: { color: "blue", weight: 2, fillColor: "cyan", fillOpacity: 0.3 }
-        }).bindPopup("محافظة رام الله").addTo(map);
-    })
-    .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
-
