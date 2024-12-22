@@ -49,26 +49,25 @@
             })
             .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
 
-        // بيانات المستشفيات والمراكز الصحية
+        // بيانات المستشفيات
         var facilities = [
             { name: "مجمع فلسطين الطبي", coordinates: [31.9063, 35.2124], type: "عام" },
             { name: "مستشفى الرعاية التخصصي", coordinates: [31.9044, 35.2094], type: "خاص" },
             { name: "مستشفى د. درغام", coordinates: [31.9084, 35.2064], type: "خاص" },
             { name: "مستشفى المستقبل", coordinates: [31.9124, 35.2214], type: "خاص" },
-            { name: "المركز الصحي العربي", coordinates: [31.9124, 35.2264], type: "خاص" },
             { name: "مستشفى الهلال الأحمر", coordinates: [31.9014, 35.2134], type: "عام" },
-            { name: "مستشفى الناصر للولادة", coordinates: [31.9044, 35.2144], type: "خاص" },
             { name: "مستشفى الرازي", coordinates: [31.9034, 35.2174], type: "عام" },
             { name: "مستشفى مسلم التخصصي", coordinates: [31.9024, 35.2164], type: "خاص" },
-            { name: "مركز الراجحي الطبي", coordinates: [31.9014, 35.2184], type: "خاص" },
             { name: "مستشفى خالد", coordinates: [31.9024, 35.2214], type: "خاص" },
             { name: "مستشفى أبو ريّا للتأهيل", coordinates: [31.9054, 35.2204], type: "عام" }
         ];
 
-        // عرض المستشفيات والمراكز الصحية باستخدام الرموز التعبيرية
+        // إضافة المستشفيات إلى الخريطة
         facilities.forEach(facility => {
-            var color = facility.type === "عام" ? "blue" : "red";
-            var emoji = `<span style="color:${color}; font-size: 24px;">🏥</span>`;
+            var emojiColor = facility.type === "عام" ? "blue" : "red";
+            var emoji = `<span style="color:${emojiColor}; font-size: 24px;">🏥</span>`;
+
+            // إنشاء أيقونة مخصصة لكل مستشفى
             var marker = L.divIcon({
                 className: '',
                 html: `<div style="text-align: center;">${emoji}</div>`,
@@ -76,6 +75,7 @@
                 iconAnchor: [15, 15]
             });
 
+            // إضافة العلامة إلى الخريطة
             L.marker(facility.coordinates, { icon: marker })
                 .bindPopup(`<b>${facility.name}</b><br>نوع المستشفى: ${facility.type}`)
                 .addTo(map);
@@ -94,3 +94,4 @@
     </script>
 </body>
 </html>
+
