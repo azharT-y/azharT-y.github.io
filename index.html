@@ -40,8 +40,8 @@
 
         // أيقونة المستشفيات
         var hospitalIcon = L.icon({
-            iconUrl: 'https://i.imgur.com/eLczvma.png', // صورة الأيقونة الجديدة (ارفع الصورة هنا)
-            iconSize: [40, 40], // حجم الأيقونة
+            iconUrl: 'https://i.imgur.com/eLczvma.png', // صورة الأيقونة الجديدة
+            iconSize: [40, 40],
             iconAnchor: [20, 40],
             popupAnchor: [0, -40]
         });
@@ -58,25 +58,25 @@
 
         // جدول المستشفيات
         var hospitalData = [
-            { name: "مجمع فلسطين الطبي", coordinates: [35.2124, 31.9063] },
-            { name: "مستشفى الرعاية التخصصي", coordinates: [35.2094, 31.9044] },
-            { name: "مستشفى د. درغام", coordinates: [35.2064, 31.9084] },
-            { name: "مستشفى المستقبل", coordinates: [35.2214, 31.9124] },
-            { name: "المركز الصحي العربي", coordinates: [35.2264, 31.9124] },
-            { name: "مستشفى الهلال الأحمر", coordinates: [35.2134, 31.9014] },
-            { name: "مستشفى الناصر للولادة", coordinates: [35.2144, 31.9044] },
-            { name: "مستشفى الرازي", coordinates: [35.2174, 31.9034] },
-            { name: "مستشفى مسلم التخصصي", coordinates: [35.2164, 31.9024] },
-            { name: "مركز الراجحي الطبي", coordinates: [35.2184, 31.9014] },
-            { name: "مستشفى الهلال الأحمر", coordinates: [35.2194, 31.9034] },
-            { name: "مستشفى خالد", coordinates: [35.2214, 31.9024] },
-            { name: "مستشفى أبو ريّا للتأهيل", coordinates: [35.2204, 31.9054] }
+            { name: "مجمع فلسطين الطبي", coordinates: [31.9063, 35.2124] },
+            { name: "مستشفى الرعاية التخصصي", coordinates: [31.9044, 35.2094] },
+            { name: "مستشفى د. درغام", coordinates: [31.9084, 35.2064] },
+            { name: "مستشفى المستقبل", coordinates: [31.9124, 35.2214] },
+            { name: "المركز الصحي العربي", coordinates: [31.9124, 35.2264] },
+            { name: "مستشفى الهلال الأحمر", coordinates: [31.9014, 35.2134] },
+            { name: "مستشفى الناصر للولادة", coordinates: [31.9044, 35.2144] },
+            { name: "مستشفى الرازي", coordinates: [31.9034, 35.2174] },
+            { name: "مستشفى مسلم التخصصي", coordinates: [31.9024, 35.2164] },
+            { name: "مركز الراجحي الطبي", coordinates: [31.9014, 35.2184] },
+            { name: "مستشفى الهلال الأحمر", coordinates: [31.9034, 35.2194] },
+            { name: "مستشفى خالد", coordinates: [31.9024, 35.2214] },
+            { name: "مستشفى أبو ريّا للتأهيل", coordinates: [31.9054, 35.2204] }
         ];
 
         // عرض المستشفيات على الخريطة
         hospitalData.forEach(hospital => {
             L.marker(hospital.coordinates, { icon: hospitalIcon })
-                .bindPopup(`<b>${hospital.name}</b>`)
+                .bindPopup(`<div style="text-align: center;"><b>${hospital.name}</b></div>`)
                 .addTo(map);
         });
 
@@ -92,3 +92,4 @@
     </script>
 </body>
 </html>
+<div style="text-align: center;"><b>${hospital.name}</b></div>
