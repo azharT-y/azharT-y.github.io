@@ -17,13 +17,13 @@
             font-size: 14px;
             line-height: 1.8em;
         }
-        .legend i {
+        .legend span {
+            display: inline-block;
             width: 20px;
             height: 20px;
-            display: inline-block;
             text-align: center;
             line-height: 20px;
-            font-size: 16px;
+            font-size: 18px;
         }
     </style>
 </head>
@@ -55,11 +55,18 @@
             { name: "مستشفى أبو ريّا للتأهيل", coordinates: [31.9054, 35.2204], type: "hospital" }
         ];
 
-        // عرض المستشفيات والمراكز الصحية على الخريطة باستخدام الرموز التعبيرية
+        // عرض المستشفيات والمراكز الصحية باستخدام الرموز التعبيرية
         facilities.forEach(facility => {
             var emoji = facility.type === "hospital" ? "🏥" : "🩺";
-            L.marker(facility.coordinates)
-                .bindPopup(`<div style="text-align: center;"><b>${emoji} ${facility.name}</b></div>`)
+            var marker = L.divIcon({
+                className: '',
+                html: `<div style="font-size: 24px; text-align: center;">${emoji}</div>`,
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            });
+
+            L.marker(facility.coordinates, { icon: marker })
+                .bindPopup(`<b>${facility.name}</b>`)
                 .addTo(map);
         });
 
@@ -67,8 +74,8 @@
         var legend = L.control({ position: 'bottomright' });
         legend.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'legend');
-            div.innerHTML += '<i>🏥</i> مستشفى<br>';
-            div.innerHTML += '<i>🩺</i> مركز صحي<br>';
+            div.innerHTML += '<span>🏥</span> مستشفى<br>';
+            div.innerHTML += '<span>🩺</span> مركز صحي<br>';
             div.innerHTML += '<i style="background: cyan; border: 1px solid blue; display: inline-block; width: 20px; height: 20px;"></i> محافظة رام الله';
             return div;
         };
@@ -76,3 +83,4 @@
     </script>
 </body>
 </html>
+
