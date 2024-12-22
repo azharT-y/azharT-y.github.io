@@ -58,7 +58,7 @@
             .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
 
         var markers = [];
-        var hospitalsLayer = L.layerGroup();
+        var facilitiesLayer = L.layerGroup();
 
         // تحميل بيانات المستشفيات والمراكز الصحية
         fetch('Hospitals.geojson')
@@ -72,12 +72,7 @@
                         var category = feature.properties.CATEGORY;
 
                         // تحديد الرموز التعبيرية
-                        var emoji;
-                        if (type === "hospital") {
-                            emoji = "🏥";
-                        } else {
-                            emoji = "🩺";
-                        }
+                        var emoji = type === "hospital" ? "🏥" : "🩺";
 
                         var marker = L.divIcon({
                             className: '',
@@ -94,7 +89,7 @@
 
                         var facilityMarker = L.marker(latlng, { icon: marker })
                             .bindPopup(popupContent)
-                            .addTo(hospitalsLayer);
+                            .addTo(facilitiesLayer);
 
                         markers.push({ name: nameAr, marker: facilityMarker });
                         return facilityMarker;
@@ -113,7 +108,7 @@
                     });
                 });
 
-                hospitalsLayer.addTo(map);
+                facilitiesLayer.addTo(map);
             })
             .catch(error => console.error("خطأ في تحميل ملف Hospitals.geojson:", error));
 
