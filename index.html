@@ -38,7 +38,7 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // أيقونة المستشفيات (الأيقونة الحمراء)
+        // أيقونة المستشفيات
         var hospitalIcon = L.icon({
             iconUrl: 'https://i.imgur.com/eLczvma.png', // صورة الأيقونة الجديدة (ارفع الصورة هنا)
             iconSize: [40, 40], // حجم الأيقونة
@@ -56,27 +56,29 @@
             })
             .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
 
-        // تحميل المستشفيات وإظهارها على الخريطة
-        fetch('Hospitals.geojson')
-            .then(response => response.json())
-            .then(data => {
-                var hospitalsLayer = L.geoJSON(data, {
-                    pointToLayer: function (feature, latlng) {
-                        // التحقق من وجود خاصية الاسم
-                        if (!feature.properties || !feature.properties.name) {
-                            console.warn("النقطة تفتقد خاصية 'name'", feature);
-                        }
+        // جدول المستشفيات
+        var hospitalData = [
+            { name: "مجمع فلسطين الطبي", coordinates: [35.2124, 31.9063] },
+            { name: "مستشفى الرعاية التخصصي", coordinates: [35.2094, 31.9044] },
+            { name: "مستشفى د. درغام", coordinates: [35.2064, 31.9084] },
+            { name: "مستشفى المستقبل", coordinates: [35.2214, 31.9124] },
+            { name: "المركز الصحي العربي", coordinates: [35.2264, 31.9124] },
+            { name: "مستشفى الهلال الأحمر", coordinates: [35.2134, 31.9014] },
+            { name: "مستشفى الناصر للولادة", coordinates: [35.2144, 31.9044] },
+            { name: "مستشفى الرازي", coordinates: [35.2174, 31.9034] },
+            { name: "مستشفى مسلم التخصصي", coordinates: [35.2164, 31.9024] },
+            { name: "مركز الراجحي الطبي", coordinates: [35.2184, 31.9014] },
+            { name: "مستشفى الهلال الأحمر", coordinates: [35.2194, 31.9034] },
+            { name: "مستشفى خالد", coordinates: [35.2214, 31.9024] },
+            { name: "مستشفى أبو ريّا للتأهيل", coordinates: [35.2204, 31.9054] }
+        ];
 
-                        // إضافة الأيقونة الجديدة
-                        return L.marker(latlng, { icon: hospitalIcon })
-                            .bindPopup(`<b>${feature.properties.name || "اسم غير متوفر"}</b>`); // عرض اسم المستشفى
-                    }
-                }).addTo(map);
-
-                // ضبط الخريطة لتشمل جميع النقاط
-                map.fitBounds(hospitalsLayer.getBounds());
-            })
-            .catch(error => console.error("خطأ في تحميل ملف Hospitals.geojson:", error));
+        // عرض المستشفيات على الخريطة
+        hospitalData.forEach(hospital => {
+            L.marker(hospital.coordinates, { icon: hospitalIcon })
+                .bindPopup(`<b>${hospital.name}</b>`)
+                .addTo(map);
+        });
 
         // إضافة مفتاح الخريطة (Legend)
         var legend = L.control({ position: 'bottomright' });
@@ -90,28 +92,3 @@
     </script>
 </body>
 </html>
-{
-    "type": "FeatureCollection",
-    "features": [
-        {
-            "type": "Feature",
-            "properties": {
-                "name": "مستشفى رام الله"
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [35.2, 31.9]
-            }
-        },
-        {
-            "type": "Feature",
-            "properties": {
-                "name": "مستشفى البيرة"
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [35.215, 31.922]
-            }
-        }
-    ]
-}
