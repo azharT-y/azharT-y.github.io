@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospitals and Health Centers Map</title>
+    <title>خريطة المستشفيات والمراكز الصحية</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-search/dist/leaflet-search.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-search/dist/leaflet-search.min.css" />
     <style>
         body, html { margin: 0; padding: 0; height: 100%; }
         #map { width: 100%; height: 100vh; }
@@ -16,69 +18,55 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
             font-size: 14px;
             line-height: 1.8em;
-            z-index: 1000;
         }
-        .search-container {
+        .control-btn {
             position: absolute;
             top: 10px;
             left: 10px;
-            z-index: 1000;
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        .filter-btn {
-            position: absolute;
-            top: 60px;
-            left: 10px;
-            z-index: 1000;
             background: white;
             padding: 10px;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             cursor: pointer;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
-    <div class="search-container">
-        <input type="text" id="search-input" placeholder="Search for a hospital" style="width: 200px; padding: 5px; border: 1px solid #ccc; border-radius: 5px;" />
-    </div>
-    <div class="filter-btn" id="filter-btn">Classify Hospitals</div>
+    <div class="control-btn" id="filter-btn">تصنيف المستشفيات</div>
 
     <script>
         var map = L.map('map').setView([31.9, 35.2], 12);
 
-        // Add OpenStreetMap layer
+        // إضافة طبقة OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // Load Ramallah polygon
+        // تحميل مضلع محافظة رام الله
         fetch('RamallahZones.json')
             .then(response => response.json())
             .then(data => {
                 L.geoJSON(data, {
                     style: { color: "blue", weight: 2, fillColor: "cyan", fillOpacity: 0.3 }
-                }).bindPopup("Ramallah District").addTo(map);
+                }).bindPopup("محافظة رام الله").addTo(map);
             })
-            .catch(error => console.error("Error loading RamallahZones.json:", error));
+            .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
 
-        var facilitiesLayer;
         var allFacilities = [];
+        var facilitiesLayer;
 
-        // Load hospitals and health centers
+        // تحميل المستشفيات والمراكز الصحية
         fetch('Hospitals.geojson')
             .then(response => response.json())
             .then(data => {
                 facilitiesLayer = L.geoJSON(data, {
                     pointToLayer: function (feature, latlng) {
-                        var type = feature.properties.type; // Public or Private
-                        var category = feature.properties.category; // hospital or health_center
+                        var type = feature.properties.type; // خاص أو عام
+                        var category = feature.properties.category; // hospital أو health_center
                         var emoji = category === "hospital" ? "🏥" : "🩺";
-                        var defaultColor = type === "Public" ? "green" : "blue";
+                        var defaultColor = type === "عام" ? "green" : "blue";
 
                         var iconHtml = `<span style="color:${defaultColor}; font-size: 24px;">${emoji}</span>`;
                         var marker = L.divIcon({
@@ -89,7 +77,7 @@
                         });
 
                         var facilityMarker = L.marker(latlng, { icon: marker })
-                            .bindPopup(`<b>${feature.properties.name}</b><br>Type: ${type}<br>Category: ${category}`)
+                            .bindPopup(`<b>${feature.properties.name}</b><br>نوع: ${type}<br>فئة: ${category}`)
                             .addTo(map);
 
                         allFacilities.push({ name: feature.properties.name, marker: facilityMarker });
@@ -97,21 +85,21 @@
                     }
                 }).addTo(map);
 
-                // Search tool
-                document.getElementById("search-input").addEventListener("input", function (e) {
-                    var query = e.target.value.toLowerCase();
-                    allFacilities.forEach(facility => {
-                        if (facility.name.toLowerCase().includes(query)) {
-                            map.setView(facility.marker.getLatLng(), 15);
-                            facility.marker.openPopup();
-                        }
-                    });
+                // أداة البحث
+                var searchControl = new L.Control.Search({
+                    layer: facilitiesLayer,
+                    propertyName: 'name',
+                    marker: false,
+                    moveToLocation: function (latlng, title, map) {
+                        map.setView(latlng, 15); // تكبير الخريطة عند العثور على الموقع
+                    }
                 });
+                searchControl.addTo(map);
 
-                // Classification tool
+                // التعامل مع زر التصنيف
                 document.getElementById("filter-btn").addEventListener("click", () => {
-                    var filterType = prompt("Choose hospital type: Public or Private");
-                    if (filterType === "Public" || filterType === "Private") {
+                    var filterType = prompt("اختر نوع المستشفى: خاص أو عام");
+                    if (filterType === "خاص" || filterType === "عام") {
                         map.removeLayer(facilitiesLayer);
                         facilitiesLayer = L.geoJSON(data, {
                             pointToLayer: function (feature, latlng) {
@@ -119,7 +107,7 @@
 
                                 var category = feature.properties.category;
                                 var emoji = category === "hospital" ? "🏥" : "🩺";
-                                var color = filterType === "Public" ? "green" : "blue";
+                                var color = filterType === "عام" ? "green" : "blue";
 
                                 var iconHtml = `<span style="color:${color}; font-size: 24px;">${emoji}</span>`;
                                 var marker = L.divIcon({
@@ -130,24 +118,24 @@
                                 });
 
                                 return L.marker(latlng, { icon: marker })
-                                    .bindPopup(`<b>${feature.properties.name}</b><br>Type: ${filterType}<br>Category: ${category}`);
+                                    .bindPopup(`<b>${feature.properties.name}</b><br>نوع: ${filterType}<br>فئة: ${category}`);
                             }
                         }).addTo(map);
                     } else {
-                        alert("Please choose a valid type: Public or Private");
+                        alert("يرجى اختيار نوع صحيح: خاص أو عام");
                     }
                 });
             })
-            .catch(error => console.error("Error loading Hospitals.geojson:", error));
+            .catch(error => console.error("خطأ في تحميل ملف Hospitals.geojson:", error));
 
-        // Legend
+        // مفتاح الخريطة
         var legend = L.control({ position: 'bottomright' });
         legend.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'legend');
-            div.innerHTML += '<span style="color: green;">🏥</span> Public Hospital<br>';
-            div.innerHTML += '<span style="color: blue;">🏥</span> Private Hospital<br>';
-            div.innerHTML += '<span>🩺</span> Health Center<br>';
-            div.innerHTML += '<i style="background: cyan; border: 1px solid blue; display: inline-block; width: 20px; height: 20px;"></i> Ramallah District';
+            div.innerHTML += '<span style="color: green;">🏥</span> مستشفى عام<br>';
+            div.innerHTML += '<span style="color: blue;">🏥</span> مستشفى خاص<br>';
+            div.innerHTML += '<span>🩺</span> مركز صحي<br>';
+            div.innerHTML += '<i style="background: cyan; border: 1px solid blue; display: inline-block; width: 20px; height: 20px;"></i> محافظة رام الله';
             return div;
         };
         legend.addTo(map);
