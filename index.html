@@ -35,6 +35,7 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             font-size: 14px;
             cursor: pointer;
+            z-index: 1000;
         }
     </style>
 </head>
@@ -61,51 +62,58 @@
             })
             .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
 
-        // بيانات المستشفيات
+        // بيانات المستشفيات والمراكز الصحية
         var facilities = [
-            { name: "مجمع فلسطين الطبي", coordinates: [31.9063, 35.2124], type: "عام" },
-            { name: "مستشفى الرعاية التخصصي", coordinates: [31.9044, 35.2094], type: "خاص" },
-            { name: "مستشفى د. درغام", coordinates: [31.9084, 35.2064], type: "خاص" },
-            { name: "مستشفى المستقبل", coordinates: [31.9124, 35.2214], type: "خاص" },
-            { name: "مستشفى الهلال الأحمر", coordinates: [31.9014, 35.2134], type: "عام" },
-            { name: "مستشفى الرازي", coordinates: [31.9034, 35.2174], type: "عام" },
-            { name: "مستشفى مسلم التخصصي", coordinates: [31.9024, 35.2164], type: "خاص" },
-            { name: "مستشفى خالد", coordinates: [31.9024, 35.2214], type: "خاص" },
-            { name: "مستشفى أبو ريّا للتأهيل", coordinates: [31.9054, 35.2204], type: "عام" }
+            { name: "مجمع فلسطين الطبي", coordinates: [31.9063, 35.2124], type: "عام", category: "hospital" },
+            { name: "مستشفى الرعاية التخصصي", coordinates: [31.9044, 35.2094], type: "خاص", category: "hospital" },
+            { name: "مستشفى د. درغام", coordinates: [31.9084, 35.2064], type: "خاص", category: "hospital" },
+            { name: "مركز صحي الهلال", coordinates: [31.9124, 35.2214], type: "عام", category: "health_center" },
+            { name: "مستشفى الهلال الأحمر", coordinates: [31.9014, 35.2134], type: "عام", category: "hospital" },
+            { name: "مستشفى الرازي", coordinates: [31.9034, 35.2174], type: "عام", category: "hospital" },
+            { name: "مركز صحي الراجحي", coordinates: [31.9024, 35.2164], type: "خاص", category: "health_center" },
+            { name: "مستشفى خالد", coordinates: [31.9024, 35.2214], type: "خاص", category: "hospital" }
         ];
 
         var markers = [];
 
-        // عرض المستشفيات
+        // عرض المستشفيات والمراكز الصحية
         function renderFacilities(filterType) {
             // إزالة جميع العلامات الحالية
             markers.forEach(marker => map.removeLayer(marker));
             markers = [];
 
             facilities.forEach(facility => {
-                var color = facility.type === filterType ? (filterType === "خاص" ? "blue" : "green") : "black";
-                var emoji = `<span style="color:${color}; font-size: 24px;">🏥</span>`;
+                var color = "black";
+                if (filterType === "خاص" && facility.type === "خاص") {
+                    color = "blue";
+                } else if (filterType === "عام" && facility.type === "عام") {
+                    color = "green";
+                }
+
+                var emoji = facility.category === "hospital" ? "🏥" : "🩺";
+                var iconHtml = `<span style="color:${color}; font-size: 24px;">${emoji}</span>`;
+
                 var marker = L.divIcon({
                     className: '',
-                    html: `<div style="text-align: center;">${emoji}</div>`,
+                    html: `<div style="text-align: center;">${iconHtml}</div>`,
                     iconSize: [30, 30],
                     iconAnchor: [15, 15]
                 });
 
                 var facilityMarker = L.marker(facility.coordinates, { icon: marker })
-                    .bindPopup(`<b>${facility.name}</b><br>نوع المستشفى: ${facility.type}`)
+                    .bindPopup(`<b>${facility.name}</b><br>نوع: ${facility.type}`)
                     .addTo(map);
 
                 markers.push(facilityMarker);
             });
         }
 
-        // عرض جميع المستشفيات مبدئيًا
-        renderFacilities("عام");
+        // عرض جميع المستشفيات والمراكز الصحية مبدئيًا
+        renderFacilities();
 
         // التعامل مع زر التصنيف
         document.getElementById("filter-btn").addEventListener("click", () => {
-            var filterType = prompt("اختر التصنيف: خاص أو عام");
+            var filterType = prompt("اختر تصنيف المستشفيات: خاص أو عام");
             if (filterType === "خاص" || filterType === "عام") {
                 renderFacilities(filterType);
             } else {
