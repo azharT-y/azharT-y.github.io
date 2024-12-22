@@ -39,6 +39,16 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
+        // تحميل مضلع محافظة رام الله
+        fetch('RamallahZones.json')
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    style: { color: "blue", weight: 2, fillColor: "cyan", fillOpacity: 0.3 }
+                }).bindPopup("محافظة رام الله").addTo(map);
+            })
+            .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
+
         // بيانات المستشفيات والمراكز الصحية
         var facilities = [
             { name: "مجمع فلسطين الطبي", coordinates: [31.9063, 35.2124], type: "hospital" },
