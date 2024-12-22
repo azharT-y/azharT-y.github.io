@@ -25,10 +25,22 @@
             line-height: 20px;
             font-size: 18px;
         }
+        .control-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            font-size: 14px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div id="map"></div>
+    <div class="control-btn" id="filter-btn">تصنيف المستشفيات</div>
 
     <script>
         // إعداد الخريطة
@@ -62,36 +74,44 @@
             { name: "مستشفى أبو ريّا للتأهيل", coordinates: [31.9054, 35.2204], type: "عام" }
         ];
 
-        // إضافة المستشفيات إلى الخريطة
-        facilities.forEach(facility => {
-            var emojiColor = facility.type === "عام" ? "blue" : "red";
-            var emoji = `<span style="color:${emojiColor}; font-size: 24px;">🏥</span>`;
+        var markers = [];
 
-            // إنشاء أيقونة مخصصة لكل مستشفى
-            var marker = L.divIcon({
-                className: '',
-                html: `<div style="text-align: center;">${emoji}</div>`,
-                iconSize: [30, 30],
-                iconAnchor: [15, 15]
+        // عرض المستشفيات
+        function renderFacilities(filterType) {
+            // إزالة جميع العلامات الحالية
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+
+            facilities.forEach(facility => {
+                var color = facility.type === filterType ? (filterType === "خاص" ? "blue" : "green") : "black";
+                var emoji = `<span style="color:${color}; font-size: 24px;">🏥</span>`;
+                var marker = L.divIcon({
+                    className: '',
+                    html: `<div style="text-align: center;">${emoji}</div>`,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                });
+
+                var facilityMarker = L.marker(facility.coordinates, { icon: marker })
+                    .bindPopup(`<b>${facility.name}</b><br>نوع المستشفى: ${facility.type}`)
+                    .addTo(map);
+
+                markers.push(facilityMarker);
             });
+        }
 
-            // إضافة العلامة إلى الخريطة
-            L.marker(facility.coordinates, { icon: marker })
-                .bindPopup(`<b>${facility.name}</b><br>نوع المستشفى: ${facility.type}`)
-                .addTo(map);
+        // عرض جميع المستشفيات مبدئيًا
+        renderFacilities("عام");
+
+        // التعامل مع زر التصنيف
+        document.getElementById("filter-btn").addEventListener("click", () => {
+            var filterType = prompt("اختر التصنيف: خاص أو عام");
+            if (filterType === "خاص" || filterType === "عام") {
+                renderFacilities(filterType);
+            } else {
+                alert("الرجاء اختيار تصنيف صحيح (خاص أو عام)");
+            }
         });
-
-        // إضافة مفتاح الخريطة (Legend)
-        var legend = L.control({ position: 'bottomright' });
-        legend.onAdd = function (map) {
-            var div = L.DomUtil.create('div', 'legend');
-            div.innerHTML += '<span style="color: blue;">🏥</span> مستشفى عام<br>';
-            div.innerHTML += '<span style="color: red;">🏥</span> مستشفى خاص<br>';
-            div.innerHTML += '<i style="background: cyan; border: 1px solid blue; display: inline-block; width: 20px; height: 20px;"></i> محافظة رام الله';
-            return div;
-        };
-        legend.addTo(map);
     </script>
 </body>
 </html>
-
