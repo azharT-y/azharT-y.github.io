@@ -31,31 +31,35 @@
     <div id="map"></div>
 
     <script>
-        var map = L.map('map').setView([31.9, 35.2], 12);
+        var map = L.map('map').setView([31.9, 35.2], 13);
 
         // طبقة OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // أيقونة المستشفيات
+        // أيقونة المستشفيات بحجم أكبر
         var hospitalIcon = L.icon({
             iconUrl: 'https://cdn-icons-png.flaticon.com/512/2329/2329149.png',
-            iconSize: [30, 30]
+            iconSize: [50, 50], // تكبير حجم الأيقونة
+            iconAnchor: [25, 50], // ضبط نقطة التثبيت للأيقونة
+            popupAnchor: [0, -50] // ضبط موضع النافذة المنبثقة
         });
 
         // تحميل مضلع محافظة رام الله
         fetch('RamallahZones.json')
             .then(response => response.json())
             .then(data => {
-                L.geoJSON(data, {
+                var ramallahLayer = L.geoJSON(data, {
                     style: { color: "blue", weight: 2, fillColor: "transparent", fillOpacity: 0 }
                 }).bindPopup("محافظة رام الله").addTo(map);
-                console.log("تم تحميل ملف RamallahZones.json بنجاح");
+
+                // ملاءمة الخريطة لتناسب حدود المحافظة
+                map.fitBounds(ramallahLayer.getBounds());
             })
             .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
 
-        // تحميل المستشفيات والتأكد من ظهورها فوق الخريطة
+        // تحميل المستشفيات والتأكد من ظهورها داخل الخريطة
         var hospitalsLayer = L.layerGroup();
         fetch('Hospitals.geojson')
             .then(response => response.json())
@@ -66,9 +70,14 @@
                             .bindPopup(`<b>${feature.properties.name || "مستشفى غير معروف"}</b>`);
                     }
                 });
+
+                // إضافة المستشفيات إلى الخريطة
                 hospitalsLayer.addLayer(hospitals);
                 map.addLayer(hospitalsLayer);
-                console.log("تم تحميل ملف Hospitals.geojson بنجاح");
+
+                // التأكد من ظهور المستشفيات ضمن العرض
+                var hospitalsBounds = hospitals.getBounds();
+                map.fitBounds(hospitalsBounds);
 
                 // إضافة أداة البحث
                 var searchControl = new L.Control.Search({
@@ -76,7 +85,7 @@
                     propertyName: 'name',
                     marker: false,
                     moveToLocation: function (latlng, title, map) {
-                        map.setView(latlng, 14);
+                        map.setView(latlng, 16); // تكبير عند العثور على الموقع
                     }
                 });
                 searchControl.addTo(map);
@@ -87,7 +96,7 @@
         var legend = L.control({ position: 'bottomleft' });
         legend.onAdd = function () {
             var div = L.DomUtil.create('div', 'legend');
-            div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/2329/2329149.png);"></i> مستشفى<br>';
+            div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/2329/2329149.png); width: 20px; height: 20px;"></i> مستشفى<br>';
             div.innerHTML += '<i style="background: transparent; border: 1px solid blue;"></i> محافظة رام الله';
             return div;
         };
@@ -95,3 +104,6 @@
     </script>
 </body>
 </html>
+var hospitalsBounds = hospitals.getBounds();
+map.fitBounds(hospitalsBounds);
+map.fitBounds(ramallahLayer.getBounds());
