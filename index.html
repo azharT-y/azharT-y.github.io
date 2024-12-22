@@ -44,16 +44,16 @@
             iconSize: [30, 30]
         });
 
-        // تحميل مضلع محافظة رام الله
+        // تحميل مضلع محافظة رام الله مع اللون الشفاف
         fetch('RamallahZones.json')
             .then(response => response.json())
             .then(data => {
                 L.geoJSON(data, {
-                    style: { color: "blue", weight: 2, fillColor: "cyan", fillOpacity: 0.3 }
+                    style: { color: "blue", weight: 2, fillColor: "transparent", fillOpacity: 0 }
                 }).bindPopup("محافظة رام الله").addTo(map);
             });
 
-        // تحميل المستشفيات
+        // تحميل المستشفيات والتأكد من ظهورها فوق الخريطة
         var hospitalsLayer = L.layerGroup();
         fetch('Hospitals.geojson')
             .then(response => response.json())
@@ -77,17 +77,19 @@
                     }
                 });
                 searchControl.addTo(map);
-            });
+            })
+            .catch(error => console.error("خطأ في تحميل ملف المستشفيات:", error));
 
         // إضافة مفتاح الخريطة
         var legend = L.control({ position: 'bottomleft' });
         legend.onAdd = function () {
             var div = L.DomUtil.create('div', 'legend');
             div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/2329/2329149.png);"></i> مستشفى<br>';
-            div.innerHTML += '<i style="background: cyan;"></i> محافظة رام الله';
+            div.innerHTML += '<i style="background: transparent; border: 1px solid blue;"></i> محافظة رام الله';
             return div;
         };
         legend.addTo(map);
     </script>
 </body>
 </html>
+style: { color: "blue", weight: 2, fillColor: "transparent", fillOpacity: 0 }
