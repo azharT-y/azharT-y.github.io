@@ -40,13 +40,13 @@
 
         // أيقونة المستشفيات
         var hospitalIcon = L.icon({
-            iconUrl: 'https://i.imgur.com/eLczvma.png', // صورة الأيقونة الجديدة
+            iconUrl: 'https://i.imgur.com/eLczvma.png', // استبدل برابط صورة الأيقونة الحمراء
             iconSize: [40, 40],
             iconAnchor: [20, 40],
             popupAnchor: [0, -40]
         });
 
-        // تحميل مضلع خريطة رام الله
+        // تحميل مضلع محافظة رام الله
         fetch('RamallahZones.json')
             .then(response => response.json())
             .then(data => {
@@ -56,8 +56,8 @@
             })
             .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
 
-        // جدول المستشفيات
-        var hospitalData = [
+        // بيانات المستشفيات
+        var hospitals = [
             { name: "مجمع فلسطين الطبي", coordinates: [31.9063, 35.2124] },
             { name: "مستشفى الرعاية التخصصي", coordinates: [31.9044, 35.2094] },
             { name: "مستشفى د. درغام", coordinates: [31.9084, 35.2064] },
@@ -74,9 +74,9 @@
         ];
 
         // عرض المستشفيات على الخريطة
-        hospitalData.forEach(hospital => {
+        hospitals.forEach(hospital => {
             L.marker(hospital.coordinates, { icon: hospitalIcon })
-                .bindPopup(`<div style="text-align: center;"><b>${hospital.name}</b></div>`)
+                .bindPopup(`<b>${hospital.name}</b>`)
                 .addTo(map);
         });
 
@@ -92,4 +92,3 @@
     </script>
 </body>
 </html>
-<div style="text-align: center;"><b>${hospital.name}</b></div>
