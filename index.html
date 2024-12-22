@@ -75,10 +75,22 @@
                         // استخدم البيانات من الملف
                         var nameAr = feature.properties.BUSNIESS_N || "اسم غير متوفر";
                         var nameEn = feature.properties.BUSNIESS_1 || "Name not available";
-                        var type = feature.properties.TYPE || "نوع غير محدد";
+                        var type = feature.properties.TYPE || "unknown";
                         var category = type === "Public" ? "عام" : "خاص";
-                        var color = category === "عام" ? "green" : "blue";
-                        var emoji = feature.properties.TYPE === "health_center" ? "🩺" : "🏥";
+
+                        // الرموز التعبيرية
+                        var emoji;
+                        var color;
+                        if (type === "hospital") {
+                            emoji = "🏥";
+                            color = category === "عام" ? "green" : "blue";
+                        } else if (type === "health_center") {
+                            emoji = "🩺";
+                            color = "red";
+                        } else {
+                            emoji = "❓"; // إذا لم يكن التصنيف معروفًا
+                            color = "gray";
+                        }
 
                         var marker = L.divIcon({
                             className: '',
@@ -123,3 +135,4 @@
     </script>
 </body>
 </html>
+
