@@ -38,15 +38,15 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // أيقونة المستشفيات
+        // أيقونة المستشفيات الجديدة
         var hospitalIcon = L.icon({
-            iconUrl: 'https://i.imgur.com/eLczvma.png', // استبدل برابط صورة الأيقونة الحمراء
-            iconSize: [40, 40],
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/2972/2972489.png', // أيقونة جديدة مخصصة
+            iconSize: [40, 40], // حجم الأيقونة
             iconAnchor: [20, 40],
             popupAnchor: [0, -40]
         });
 
-        // تحميل مضلع محافظة رام الله
+        // تحميل مضلع خريطة رام الله
         fetch('RamallahZones.json')
             .then(response => response.json())
             .then(data => {
@@ -84,7 +84,7 @@
         var legend = L.control({ position: 'bottomright' });
         legend.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'legend');
-            div.innerHTML += '<i style="background-image: url(https://i.imgur.com/eLczvma.png);"></i> مستشفى<br>';
+            div.innerHTML += '<i style="background-image: url(https://cdn-icons-png.flaticon.com/512/2972/2972489.png);"></i> مستشفى<br>';
             div.innerHTML += '<i style="background: cyan; border: 1px solid blue; display: inline-block; width: 20px; height: 20px;"></i> محافظة رام الله';
             return div;
         };
