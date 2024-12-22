@@ -93,4 +93,27 @@
     </script>
 </body>
 </html>
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[[35.2121, 31.9071], [35.2221, 31.9071], [35.2221, 31.9171], [35.2121, 31.9171], [35.2121, 31.9071]]]
+            },
+            "properties": {
+                "name": "محافظة رام الله"
+            }
+        }
+    ]
+}
+fetch('RamallahZones.json')
+    .then(response => response.json())
+    .then(data => {
+        L.geoJSON(data, {
+            style: { color: "blue", weight: 2, fillColor: "cyan", fillOpacity: 0.3 }
+        }).bindPopup("محافظة رام الله").addTo(map);
+    })
+    .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
 
