@@ -62,9 +62,11 @@
                         // استخدم البيانات من الملف
                         var nameAr = feature.properties.BUSNIESS_N || "اسم غير متوفر";
                         var city = feature.properties.CITY || "مدينة غير معروفة";
-                        var type = feature.properties.TYPE || "غير محدد";
+                        var type = feature.properties.CATEGORY || "غير محدد";
                         var emoji = type === "hospital" ? "🏥" : "🩺";
-                        var color = type === "hospital" ? (feature.properties.CATEGORY === "Public" ? "green" : "blue") : "red";
+                        var color = type === "hospital" 
+                            ? (feature.properties.TYPE === "Public" ? "green" : "blue") 
+                            : "red";
 
                         var marker = L.divIcon({
                             className: '',
@@ -74,7 +76,7 @@
                         });
 
                         return L.marker(latlng, { icon: marker })
-                            .bindPopup(`<b>${nameAr}</b><br>المدينة: ${city}<br>النوع: ${type === "hospital" ? "مستشفى" : "مركز صحي"}<br>التصنيف: ${feature.properties.CATEGORY || "غير محدد"}`)
+                            .bindPopup(`<b>${nameAr}</b><br>المدينة: ${city}<br>النوع: ${type === "hospital" ? "مستشفى" : "مركز صحي"}<br>التصنيف: ${feature.properties.TYPE || "غير محدد"}`)
                             .addTo(map);
                     }
                 });
