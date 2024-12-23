@@ -1,17 +1,96 @@
-function createMarker(feature) {
-    // ... نفس الكود السابق لإنشاء الماركر
-}
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خريطة المستشفيات والمراكز الصحية</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; }
+        #map { width: 100%; height: 100vh; }
+        .legend {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            font-size: 14px;
+            line-height: 1.8em;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
 
-function createPopupContent(feature) {
-    // ... نفس الكود السابق لإنشاء محتوى النافذة المنبثقة
-}
+    <script>
+        var map = L.map('map').setView([31.9, 35.2], 12);
 
-// ...
-L.geoJSON(data, {
-    pointToLayer: createMarker,
-    onEachFeature: function(feature, layer) {
-        layer.bindPopup(createPopupContent(feature));
-    }
-}).addTo(map);
+        // طبقة OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
 
-       
+        // مضلع محافظة رام الله
+        fetch('RamallahZones.json')
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    style: { color: "blue", weight: 2, fillColor: "cyan", fillOpacity: 0.3 }
+                }).bindPopup("محافظة رام الله").addTo(map);
+            })
+            .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
+
+        // تحميل المستشفيات والمراكز الصحية
+        fetch('Hospitals.geojson')
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    pointToLayer: function (feature, latlng) {
+                        var name = feature.properties.BUSNIESS_N || "اسم غير متوفر";
+                        var city = feature.properties.CITY || "مدينة غير معروفة";
+                        var type = feature.properties.TYPE || "hospital";
+                        var category = feature.properties.CATEGORY || "";
+
+                        // اختيار الرمز التعبيري
+                        var emoji = type === "hospital" ? "🏥" : "🩺";
+
+                        // إعداد الأيقونة
+                        var icon = L.divIcon({
+                            className: '',
+                            html: `<div style="font-size: 24px; text-align: center;">${emoji}</div>`,
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 15]
+                        });
+
+                        // محتوى الـ Popup
+                        var popupContent = `<b>${name}</b><br>المدينة: ${city}`;
+                        if (type === "hospital") {
+                            popupContent += `<br>التصنيف: ${category === "خاص" ? "خاص" : "عام"}`;
+                        }
+
+                        return L.marker(latlng, { icon: icon })
+                            .bindPopup(popupContent)
+                            .addTo(map);
+                    }
+                });
+            })
+            .catch(error => console.error("خطأ في تحميل ملف Hospitals.geojson:", error));
+
+        // Legend
+        var legend = L.control({ position: 'bottomright' });
+        legend.onAdd = function () {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML += '<span>🏥</span> مستشفى<br>';
+            div.innerHTML += '<span>🩺</span> مركز صحي<br>';
+            div.innerHTML += '<i style="background: cyan; border: 1px solid blue; display: inline-block; width: 20px; height: 20px;"></i> محافظة رام الله';
+            return div;
+        };
+        legend.addTo(map);
+    </script>
+</body>
+</html>
+
