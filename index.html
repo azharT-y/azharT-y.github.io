@@ -9,6 +9,22 @@
     <style>
         body, html { margin: 0; padding: 0; height: 100%; }
         #map { width: 100%; height: 100vh; }
+        .search-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .search-container input {
+            width: 200px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
         .legend {
             position: absolute;
             bottom: 10px;
@@ -25,6 +41,9 @@
 </head>
 <body>
     <div id="map"></div>
+    <div class="search-container">
+        <input type="text" id="search-input" placeholder="ابحث عن مستشفى أو مركز صحي" />
+    </div>
 
     <script>
         var map = L.map('map').setView([31.9, 35.2], 12);
@@ -50,6 +69,7 @@
         fetch('Hospitals.geojson')
             .then(response => response.json())
             .then(data => {
+                var facilityMarkers = [];
                 L.geoJSON(data, {
                     pointToLayer: function (feature, latlng) {
                         var type = feature.properties.TYPE || "hospital";
@@ -60,7 +80,14 @@
                             iconSize: [30, 30],
                             iconAnchor: [15, 15]
                         });
-                        return L.marker(latlng, { icon: icon });
+                        var marker = L.marker(latlng, { icon: icon });
+                        facilityMarkers.push({
+                            name: feature.properties.BUSNIESS_N || "اسم غير متوفر",
+                            city: feature.properties.CITY || "مدينة غير معروفة",
+                            type: type,
+                            layer: marker
+                        });
+                        return marker;
                     },
                     onEachFeature: function (feature, layer) {
                         var name = feature.properties.BUSNIESS_N || "اسم غير متوفر";
@@ -75,6 +102,20 @@
                         layer.bindPopup(popupContent);
                     }
                 }).addTo(facilitiesLayer);
+
+                // أداة البحث
+                var searchInput = document.getElementById('search-input');
+                searchInput.addEventListener('input', function () {
+                    var searchTerm = this.value.toLowerCase();
+                    facilitiesLayer.clearLayers();
+                    facilityMarkers.forEach(function (facility) {
+                        if (facility.name.toLowerCase().includes(searchTerm)) {
+                            facility.layer.addTo(facilitiesLayer);
+                            map.setView(facility.layer.getLatLng(), 15);
+                            facility.layer.openPopup();
+                        }
+                    });
+                });
             })
             .catch(error => console.error("خطأ في تحميل ملف Hospitals.geojson:", error));
 
