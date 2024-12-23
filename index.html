@@ -9,16 +9,6 @@
     <style>
         body, html { margin: 0; padding: 0; height: 100%; }
         #map { width: 100%; height: 100vh; }
-        .search-container {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-            z-index: 1000;
-        }
         .legend {
             position: absolute;
             bottom: 10px;
@@ -35,19 +25,17 @@
 </head>
 <body>
     <div id="map"></div>
-    <div class="search-container">
-        <input type="text" id="search-input" placeholder="ابحث عن مستشفى أو مركز صحي" style="width: 200px; padding: 5px; border: 1px solid #ccc; border-radius: 5px;" />
-    </div>
 
     <script>
+        // إعداد الخريطة
         var map = L.map('map').setView([31.9, 35.2], 12);
 
-        // إضافة طبقة OpenStreetMap
+        // طبقة OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // تحميل مضلع محافظة رام الله
+        // مضلع محافظة رام الله
         fetch('RamallahZones.json')
             .then(response => response.json())
             .then(data => {
@@ -57,62 +45,44 @@
             })
             .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
 
-        var markers = [];
-        var facilitiesLayer = L.layerGroup();
-
-        // تحميل بيانات المستشفيات والمراكز الصحية
+        // تحميل المستشفيات والمراكز الصحية
         fetch('Hospitals.geojson')
             .then(response => response.json())
             .then(data => {
                 L.geoJSON(data, {
                     pointToLayer: function (feature, latlng) {
-                        var nameAr = feature.properties.BUSNIESS_N || "اسم غير متوفر";
+                        var name = feature.properties.BUSNIESS_N || "اسم غير متوفر";
                         var city = feature.properties.CITY || "مدينة غير معروفة";
                         var type = feature.properties.TYPE || "hospital";
                         var category = feature.properties.CATEGORY;
 
-                        // تحديد الرموز التعبيرية
+                        // اختيار الرمز التعبيري
                         var emoji = type === "hospital" ? "🏥" : "🩺";
 
-                        var marker = L.divIcon({
+                        // إعداد الأيقونة
+                        var icon = L.divIcon({
                             className: '',
                             html: `<div style="font-size: 24px; text-align: center;">${emoji}</div>`,
                             iconSize: [30, 30],
                             iconAnchor: [15, 15]
                         });
 
-                        // محتوى النوافذ المنبثقة (Popup)
-                        var popupContent = `<b>${nameAr}</b><br>المدينة: ${city}`;
+                        // محتوى الـ Popup
+                        var popupContent = `<b>${name}</b><br>المدينة: ${city}`;
                         if (type === "hospital") {
-                            popupContent += `<br><small>التصنيف: ${category === "خاص" ? "خاص" : "عام"}</small>`;
+                            popupContent += `<br>التصنيف: ${category === "خاص" ? "خاص" : "عام"}`;
                         }
 
-                        var facilityMarker = L.marker(latlng, { icon: marker })
+                        // إضافة العلامة إلى الخريطة
+                        return L.marker(latlng, { icon: icon })
                             .bindPopup(popupContent)
-                            .addTo(facilitiesLayer);
-
-                        markers.push({ name: nameAr, marker: facilityMarker });
-                        return facilityMarker;
+                            .addTo(map);
                     }
-                }).addTo(map);
-
-                // إعداد أداة البحث
-                const searchInput = document.getElementById("search-input");
-                searchInput.addEventListener("input", function () {
-                    const query = searchInput.value.toLowerCase();
-                    markers.forEach(facility => {
-                        if (facility.name.toLowerCase().includes(query)) {
-                            map.setView(facility.marker.getLatLng(), 15);
-                            facility.marker.openPopup();
-                        }
-                    });
                 });
-
-                facilitiesLayer.addTo(map);
             })
             .catch(error => console.error("خطأ في تحميل ملف Hospitals.geojson:", error));
 
-        // إعداد مفتاح الخريطة (Legend)
+        // Legend
         var legend = L.control({ position: 'bottomright' });
         legend.onAdd = function () {
             var div = L.DomUtil.create('div', 'legend');
