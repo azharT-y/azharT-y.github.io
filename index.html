@@ -27,14 +27,15 @@
     <div id="map"></div>
 
     <script>
+        // إعداد الخريطة
         var map = L.map('map').setView([31.9, 35.2], 12);
 
-        // طبقة OpenStreetMap
+        // إضافة طبقة OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // مضلع محافظة رام الله
+        // تحميل مضلع محافظة رام الله
         fetch('RamallahZones.json')
             .then(response => response.json())
             .then(data => {
@@ -44,43 +45,47 @@
             })
             .catch(error => console.error("خطأ في تحميل ملف RamallahZones.json:", error));
 
-        // تحميل المستشفيات والمراكز الصحية
+        // وظيفة لإنشاء الرموز التعبيرية لكل نوع
+        function createMarker(feature, latlng) {
+            var type = feature.properties.TYPE || "hospital";
+            var emoji = type === "hospital" ? "🏥" : "🩺";
+            var icon = L.divIcon({
+                className: '',
+                html: `<div style="font-size: 24px; text-align: center;">${emoji}</div>`,
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            });
+            return L.marker(latlng, { icon: icon });
+        }
+
+        // وظيفة لإنشاء محتوى الـ Popup
+        function createPopupContent(feature) {
+            var name = feature.properties.BUSNIESS_N || "اسم غير متوفر";
+            var city = feature.properties.CITY || "مدينة غير معروفة";
+            var type = feature.properties.TYPE || "hospital";
+            var category = feature.properties.CATEGORY;
+
+            var content = `<b>${name}</b><br>المدينة: ${city}`;
+            if (type === "hospital") {
+                content += `<br>التصنيف: ${category === "خاص" ? "خاص" : "عام"}`;
+            }
+            return content;
+        }
+
+        // تحميل بيانات المستشفيات والمراكز الصحية
         fetch('Hospitals.geojson')
             .then(response => response.json())
             .then(data => {
                 L.geoJSON(data, {
-                    pointToLayer: function (feature, latlng) {
-                        var name = feature.properties.BUSNIESS_N || "اسم غير متوفر";
-                        var city = feature.properties.CITY || "مدينة غير معروفة";
-                        var type = feature.properties.TYPE || "hospital";
-                        var category = feature.properties.CATEGORY || "";
-
-                        // اختيار الرمز التعبيري
-                        var emoji = type === "hospital" ? "🏥" : "🩺";
-
-                        // إعداد الأيقونة
-                        var icon = L.divIcon({
-                            className: '',
-                            html: `<div style="font-size: 24px; text-align: center;">${emoji}</div>`,
-                            iconSize: [30, 30],
-                            iconAnchor: [15, 15]
-                        });
-
-                        // محتوى الـ Popup
-                        var popupContent = `<b>${name}</b><br>المدينة: ${city}`;
-                        if (type === "hospital") {
-                            popupContent += `<br>التصنيف: ${category === "خاص" ? "خاص" : "عام"}`;
-                        }
-
-                        return L.marker(latlng, { icon: icon })
-                            .bindPopup(popupContent)
-                            .addTo(map);
+                    pointToLayer: createMarker,
+                    onEachFeature: function(feature, layer) {
+                        layer.bindPopup(createPopupContent(feature));
                     }
-                });
+                }).addTo(map);
             })
             .catch(error => console.error("خطأ في تحميل ملف Hospitals.geojson:", error));
 
-        // Legend
+        // إعداد Legend
         var legend = L.control({ position: 'bottomright' });
         legend.onAdd = function () {
             var div = L.DomUtil.create('div', 'legend');
@@ -93,4 +98,3 @@
     </script>
 </body>
 </html>
-
