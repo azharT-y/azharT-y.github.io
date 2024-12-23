@@ -69,7 +69,7 @@
                         var nameAr = feature.properties.BUSNIESS_N || "اسم غير متوفر";
                         var city = feature.properties.CITY || "مدينة غير معروفة";
                         var type = feature.properties.TYPE || "hospital";
-                        var category = feature.properties.CATEGORY;
+                        var category = feature.properties.CATEGORY || "غير مصنف";
 
                         // تحديد الرموز التعبيرية
                         var emoji = type === "hospital" ? "🏥" : "🩺";
