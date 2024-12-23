@@ -72,19 +72,29 @@
                 var facilityMarkers = [];
                 L.geoJSON(data, {
                     pointToLayer: function (feature, latlng) {
-                        var type = feature.properties.TYPE || "hospital";
-                        var emoji = type === "hospital" ? "🏥" : "🩺";
+                        var name = feature.properties.BUSNIESS_N || "اسم غير متوفر";
+                        var city = feature.properties.CITY || "مدينة غير معروفة";
+
+                        // تحديد نوع الرمز بناءً على الاسم
+                        var emoji;
+                        if (name === "مركز التنمية" || name === "المركز الصحي العربي" || name === "مركز الراجحي الطبي") {
+                            emoji = "🩺"; // رمز للمراكز الصحية
+                        } else {
+                            emoji = "🏥"; // رمز للمستشفيات
+                        }
+
                         var icon = L.divIcon({
                             className: '',
                             html: `<div style="font-size: 24px; text-align: center;">${emoji}</div>`,
                             iconSize: [30, 30],
                             iconAnchor: [15, 15]
                         });
+
                         var marker = L.marker(latlng, { icon: icon });
                         facilityMarkers.push({
-                            name: feature.properties.BUSNIESS_N || "اسم غير متوفر",
-                            city: feature.properties.CITY || "مدينة غير معروفة",
-                            type: type,
+                            name: name,
+                            city: city,
+                            type: feature.properties.TYPE || "hospital",
                             category: feature.properties.CATEGORY || "",
                             layer: marker
                         });
