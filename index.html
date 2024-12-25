@@ -107,8 +107,12 @@
                         var category = feature.properties.CATEGORY || "";
 
                         var popupContent = `<b>${name}</b><br>المدينة: ${city}`;
-                        if (type === "hospital" && category) {
-                            popupContent += `<br>التصنيف: ${category === "خاص" ? "خاص" : "عام"}`;
+                        if (type === "hospital") {
+                            if (category === "خاص" || category === "عام") {
+                                popupContent += `<br>التصنيف: ${category}`;
+                            } else {
+                                popupContent += `<br>التصنيف: غير متوفر`;
+                            }
                         }
                         layer.bindPopup(popupContent);
                     }
