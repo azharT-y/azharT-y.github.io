@@ -107,7 +107,7 @@
                         var category = feature.properties.CATEGORY || "";
 
                         var popupContent = `<b>${name}</b><br>المدينة: ${city}`;
-                        if (type === "hospital") {
+                        if (type === "hospital" && category) {
                             popupContent += `<br>التصنيف: ${category === "خاص" ? "خاص" : "عام"}`;
                         }
                         layer.bindPopup(popupContent);
@@ -143,15 +143,3 @@
     </script>
 </body>
 </html>
-onEachFeature: function (feature, layer) {
-    var name = feature.properties.BUSNIESS_N || "اسم غير متوفر";
-    var city = feature.properties.CITY || "مدينة غير معروفة";
-    var type = feature.properties.TYPE || "hospital";
-    var category = feature.properties.CATEGORY || ""; // التحقق من التصنيف
-
-    var popupContent = `<b>${name}</b><br>المدينة: ${city}`;
-    if (type === "hospital" && category) { // عرض التصنيف فقط للمستشفيات
-        popupContent += `<br>التصنيف: ${category === "خاص" ? "خاص" : "عام"}`;
-    }
-    layer.bindPopup(popupContent);
-}
