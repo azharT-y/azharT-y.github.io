@@ -70,6 +70,20 @@
             .then(response => response.json())
             .then(data => {
                 var facilityMarkers = [];
+
+                // إعداد تصنيف المستشفيات بناءً على الاسم
+                function getCategoryByName(name) {
+                    const privateHospitals = ["مستشفى الرعاية التخصصي", "مستشفى المستقبل", "مستشفى خالد", "مستشفى مسلم التخصصي"];
+                    const publicHospitals = ["مجمع فلسطين الطبي", "مستشفى الهلال الأحمر", "مستشفى الناصر للولادة", "مستشفى الرازي"];
+
+                    if (privateHospitals.includes(name)) {
+                        return "خاص";
+                    } else if (publicHospitals.includes(name)) {
+                        return "عام";
+                    }
+                    return "غير معروف";
+                }
+
                 L.geoJSON(data, {
                     pointToLayer: function (feature, latlng) {
                         var name = feature.properties.BUSNIESS_N || "اسم غير متوفر";
@@ -95,7 +109,6 @@
                             name: name,
                             city: city,
                             type: feature.properties.TYPE || "hospital",
-                            category: feature.properties.CATEGORY || "",
                             layer: marker
                         });
                         return marker;
@@ -104,15 +117,11 @@
                         var name = feature.properties.BUSNIESS_N || "اسم غير متوفر";
                         var city = feature.properties.CITY || "مدينة غير معروفة";
                         var type = feature.properties.TYPE || "hospital";
-                        var category = feature.properties.CATEGORY || "";
 
                         var popupContent = `<b>${name}</b><br>المدينة: ${city}`;
                         if (type === "hospital") {
-                            if (category === "خاص" || category === "عام") {
-                                popupContent += `<br>التصنيف: ${category}`;
-                            } else {
-                                popupContent += `<br>التصنيف: غير متوفر`;
-                            }
+                            const category = getCategoryByName(name);
+                            popupContent += `<br>التصنيف: ${category}`;
                         }
                         layer.bindPopup(popupContent);
                     }
