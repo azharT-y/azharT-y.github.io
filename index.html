@@ -1,162 +1,293 @@
-{
-  "type": "FeatureCollection",
-  "features": [
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [35.204811079191209, 31.898848178094777]
-      },
-      "properties": {
-        "BUSNIESS_N": "مجمع فلسطين الطبي",
-        "BUSNIESS_1": "Palestine Medical Complex",
-        "CITY": "رام الله"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [35.205078284254341, 31.905379392600199]
-      },
-      "properties": {
-        "BUSNIESS_N": "مستشفى الرعاية التخصصي",
-        "BUSNIESS_1": "Care Specialist Hospital",
-        "CITY": "رام الله"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [35.204428326166202, 31.897747383972042]
-      },
-      "properties": {
-        "BUSNIESS_N": "مركز دكتور ضرغام",
-        "BUSNIESS_1": "Dr. Dergham Clinic",
-        "CITY": "رام الله"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [35.214167418863404, 31.914433044313196]
-      },
-      "properties": {
-        "BUSNIESS_N": "مستشفى المستقبل",
-        "BUSNIESS_1": "Al Mustakbal Hospital",
-        "CITY": "البيرة"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [35.206537250841556, 31.90463383996682]
-      },
-      "properties": {
-        "BUSNIESS_N": "المركز الصحي العربي",
-        "BUSNIESS_1": "Arabic Health Center",
-        "CITY": "البيرة"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [35.162314203615608, 31.933553067680933]
-      },
-      "properties": {
-        "BUSNIESS_N": "المستشفى الاستشاري العربي",
-        "BUSNIESS_1": "Istishari Arab Hospital",
-        "CITY": "رام الله"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [35.211764641042308, 31.905857815031091]
-      },
-      "properties": {
-        "BUSNIESS_N": "مستشفى الهلال الأحمر الفلسطيني",
-        "BUSNIESS_1": "Palestinian Red Crescent Hospital",
-        "CITY": "البيرة"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [35.206390854139464, 31.906435211638339]
-      },
-      "properties": {
-        "BUSNIESS_N": "مستشفى الناظر للولادة",
-        "BUSNIESS_1": "Nazer Maternity Hospital",
-        "CITY": "رام الله"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [35.214711311496423, 31.896593436528104]
-      },
-      "properties": {
-        "BUSNIESS_N": "مستشفى الرازي",
-        "BUSNIESS_1": "Al Razi Hospital",
-        "CITY": "البيرة"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [35.190846232397021, 31.898584530835155]
-      },
-      "properties": {
-        "BUSNIESS_N": "مركز أبوريا التخصصي",
-        "BUSNIESS_1": "Abu Rayya Rehabilitation Center",
-        "CITY": "رام الله"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [35.1848, 31.9065]
-      },
-      "properties": {
-        "BUSNIESS_N": "مركز كلينيكير الطبي",
-        "BUSNIESS_1": "Clinicare Medical Center",
-        "CITY": "رام الله"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [35.1955, 31.9022]
-      },
-      "properties": {
-        "BUSNIESS_N": "مستشفى H Clinic",
-        "BUSNIESS_1": "H Clinic Hospital",
-        "CITY": "رام الله"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [35.1932, 31.9025]
-      },
-      "properties": {
-        "BUSNIESS_N": "مستشفى يافا الجراحي",
-        "BUSNIESS_1": "Yafa Surgical Hospital",
-        "CITY": "رام الله"
-      }
-    }
-  ]
-}
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خريطة المستشفيات والمراكز الصحية</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; }
+        #map { width: 100%; height: 100vh; }
+        .search-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .search-container input {
+            width: 250px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .legend {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            font-size: 14px;
+        }
+        .info-container {
+            position: absolute;
+            top: 70px;
+            left: 10px;
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            font-family: Arial, sans-serif;
+            width: 300px;
+        }
+        .info-container h3 {
+            margin: 0;
+            font-size: 18px;
+            background-color: #0056b3;
+            color: white;
+            padding: 5px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        .info-section {
+            margin-bottom: 10px;
+            cursor: pointer;
+            padding: 5px;
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .info-section-content {
+            display: none;
+            color: black;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .info-section.active .info-section-content {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="search-container">
+        <input type="text" id="search-input" placeholder="ابحث عن مستشفى أو مركز صحي" />
+    </div>
+    <div class="info-container" id="info-container">
+        <h3>معلومات المستشفى/المركز</h3>
+        <div id="info-sections"></div>
+    </div>
 
+    <script>
+        var map = L.map('map').setView([31.9, 35.2], 12);
+
+        // Adding OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Adding Ramallah polygons
+        fetch('RamallahZones.json')
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    style: { color: "blue", fillColor: "rgba(0, 0, 255, 0.1)", fillOpacity: 0.5 }
+                }).addTo(map);
+            });
+
+        // Adding hospitals and health centers
+        fetch('HealthFacititi_FeaturesToJSO.geojson')
+            .then(response => response.json())
+            .then(data => {
+                var markers = L.layerGroup().addTo(map);
+
+               const infoData = {
+    "مجمع فلسطين الطبي": {
+        intro: "أكبر مستشفى حكومي في الضفة الغربية يقدم خدمات طبية شاملة.",
+        departments: "الطوارئ، العناية المركزة، الجراحة العامة، الأمراض الباطنية، الكلى والغسيل الكلوي، الأورام، الأطفال.",
+        clinics: "عيادة الأورام: د. مازن عبد الله (الأحد والثلاثاء، 8 صباحًا - 2 مساءً).<br>عيادة الكلى: د. سحر عادل (يوميًا، 7 صباحًا - 3 مساءً).",
+        classification: "حكومي"
+    },
+    "مستشفى الرعاية التخصصي": {
+        intro: "مستشفى خاص يقدم خدمات متقدمة باستخدام أحدث التقنيات.",
+        departments: "الجراحة العامة، أمراض القلب، الأمراض الباطنية والجهاز الهضمي، الأطفال وحديثي الولادة، أمراض النساء والتوليد.",
+        clinics: "عيادة القلب: د. مؤيد دعبيس (9:30 صباحًا - 1 مساءً).<br>عيادة الأطفال: د. عمر قلالوة (9 صباحًا - 2 مساءً).",
+        classification: "خاص، متميز"
+    },
+    "مركز دكتور ضرغام": {
+        intro: "مركز صحي يقدم خدمات الرعاية الأولية والتطعيمات.",
+        departments: "الطب العام، التطعيمات.",
+        clinics: "عيادة الطب العام: د. ضرغام علي (8 صباحًا - 2 مساءً).",
+        classification: "مركز صحي"
+    },
+    "مستشفى المستقبل": {
+        intro: "مستشفى يقدم خدمات طبية متعددة التخصصات.",
+        departments: "الطوارئ، الأمراض الباطنية، الأطفال، النساء والتوليد.",
+        clinics: "عيادة الأطفال: د. حنان شهاب (8 صباحًا - 4 مساءً).",
+        classification: "خاص"
+    },
+    "المركز الصحي العربي": {
+        intro: "مركز صحي يقدم خدمات طبية شاملة.",
+        departments: "الطب العام، طب الأطفال، النساء والتوليد.",
+        clinics: "عيادة الطب العام: د. ليلى العربي (9 صباحًا - 2 مساءً).",
+        classification: "مركز صحي خاص"
+    },
+    "المستشفى الاستشاري العربي": {
+        intro: "مستشفى خاص يقدم خدمات متقدمة.",
+        departments: "الجراحة العامة، الأورام، القلب، العيون، الأمراض الباطنية.",
+        clinics: "عيادة الأورام: د. فراس عليان (بحجز مسبق).",
+        classification: "خاص"
+    },
+    "مستشفى الهلال الأحمر الفلسطيني": {
+        intro: "مستشفى يقدم خدمات الطوارئ والرعاية الصحية المتخصصة.",
+        departments: "الطوارئ، العلاج الطبيعي، الجراحة العامة.",
+        clinics: "عيادة الطوارئ: د. خالد عبد الله (24 ساعة يوميًا).",
+        classification: "خيري"
+    },
+    "مستشفى الهلال الأحمر": {
+        intro: "مستشفى يقدم خدمات متنوعة.",
+        departments: "الجراحة العامة، العظام، الطوارئ.",
+        clinics: "عيادة الجراحة العامة: د. سامي الرازي (9 صباحًا - 3 مساءً).",
+        classification: "خيري"
+    },
+    "مستشفى خالد": {
+        intro: "مستشفى يقدم خدمات متعددة التخصصات.",
+        departments: "الطوارئ، النساء والتوليد، الجراحة العامة.",
+        clinics: "عيادة الطوارئ: د. خالد علي (8 صباحًا - 4 مساءً).",
+        classification: "خاص"
+    },
+    "مركز أبو ريا التخصصي": {
+        intro: "مركز متخصص في التأهيل الطبي وعلاج الإصابات.",
+        departments: "العلاج الطبيعي، إعادة التأهيل، الرعاية النفسية.",
+        clinics: "عيادة التأهيل الطبي: د. نبيل أبو ريا (8 صباحًا - 3 مساءً).",
+        classification: "خاص"
+    },
+    "مركز كلينيكير الطبي": {
+        intro: "مركز طبي يقدم خدمات الرعاية الطبية الأساسية.",
+        departments: "الطب العام، طب الأطفال.",
+        clinics: "عيادة الطب العام: د. مازن حماد (9 صباحًا - 4 مساءً).",
+        classification: "خاص"
+    },
+    "مستشفى H Clinic": {
+        intro: "مستشفى يقدم خدمات طبية متقدمة.",
+        departments: "الجراحة العامة، أمراض القلب، العناية المركزة.",
+        clinics: "عيادة القلب: د. مؤيد الأسعد (9 صباحًا - 3 مساءً).",
+        classification: "خاص"
+    },
+    "مستشفى يافا الجراحي": {
+        intro: "مستشفى خاص يقدم خدمات متميزة.",
+        departments: "الجراحة العامة، العظام، العيون.",
+        clinics: "عيادة العيون: د. سامر خليل (11 صباحًا - 3 مساءً).",
+        classification: "خاص"
+    },
+    "مستشفى الناظر للولادة": {
+        intro: "مستشفى خاص متخصص في خدمات الولادة وأمراض النساء.",
+        departments: "الولادة الطبيعية، أمراض النساء والتوليد.",
+        clinics: "عيادة النساء والتوليد: د. منى خليل (8 صباحًا - 2 مساءً).",
+        classification: "خاص"
+    },
+    "مستشفى الرازي": {
+        intro: "مستشفى يقدم خدمات طبية متعددة التخصصات.",
+        departments: "الطوارئ، العظام، الجراحة العامة.",
+        clinics: "عيادة العظام: د. خالد يوسف (9 صباحًا - 2 مساءً).",
+        classification: "خاص"
+    }
+};
+
+
+                data.features.forEach(feature => {
+                    var name = feature.properties.BUSNIESS_N || "غير معروف";
+                    var city = feature.properties.CITY || "غير معروف";
+                    var coordinates = feature.geometry.coordinates;
+
+                    var icon = L.divIcon({
+                        className: '',
+                        html: <div style="font-size: 24px; text-align: center;">${name.includes("مركز") ? '🩺' : '🏥'}</div>,
+                        iconSize: [50, 50],
+                        iconAnchor: [25, 25]
+                    });
+
+                    var marker = L.marker([coordinates[1], coordinates[0]], { icon: icon }).addTo(markers);
+                    marker.bindPopup(<b>${name}</b><br>المدينة: ${city});
+
+                    marker.on('click', function () {
+                        const sectionsContainer = document.getElementById('info-sections');
+                        sectionsContainer.innerHTML = '';
+
+                        const hospitalInfo = infoData[name] || {
+                            intro: "لا توجد بيانات.",
+                            departments: "لا توجد بيانات.",
+                            clinics: "لا توجد بيانات.",
+                            classification: "لا توجد بيانات."
+                        };
+
+                        const sections = [
+                            { title: 'المقدمة', content: hospitalInfo.intro },
+                            { title: 'الأقسام', content: hospitalInfo.departments },
+                            { title: 'العيادات الخارجية', content: hospitalInfo.clinics },
+                            { title: 'التصنيف', content: hospitalInfo.classification }
+                        ];
+
+                        sections.forEach(section => {
+                            const sectionDiv = document.createElement('div');
+                            sectionDiv.classList.add('info-section');
+                            sectionDiv.innerHTML = ${section.title} <span>▼</span>;
+
+                            const contentDiv = document.createElement('div');
+                            contentDiv.classList.add('info-section-content');
+                            contentDiv.innerHTML = section.content;
+
+                            sectionDiv.appendChild(contentDiv);
+                            sectionDiv.addEventListener('click', () => {
+                                sectionDiv.classList.toggle('active');
+                            });
+
+                            sectionsContainer.appendChild(sectionDiv);
+                        });
+
+                        document.getElementById('info-container').style.display = 'block';
+                    });
+                });
+
+                // Search functionality
+                document.getElementById('search-input').addEventListener('input', function () {
+                    var query = this.value.toLowerCase();
+                    var found = false;
+
+                    markers.eachLayer(function (layer) {
+                        if (layer.getPopup().getContent().toLowerCase().includes(query)) {
+                            map.setView(layer.getLatLng(), 15);
+                            layer.openPopup();
+                            found = true;
+                        }
+                    });
+
+                    if (!found && query.trim() !== "") {
+                        alert('لم يتم العثور على المستشفى أو المركز الصحي');
+                        map.setView([31.9, 35.2], 12); // Reset to default view
+                    }
+                });
+            });
+
+        // Adding legend
+        var legend = L.control({ position: 'bottomright' });
+        legend.onAdd = function () {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML += '<span>🏥</span> مستشفى<br>';
+            div.innerHTML += '<span>🩺</span> مركز صحي<br>';
+            div.innerHTML += '<i style="background: rgba(0, 0, 255, 0.1); display: inline-block; width: 20px; height: 20px;"></i> مضلع رام الله';
+            return div;
+        };
+        legend.addTo(map);
+    </script>
+</body>
+</html
